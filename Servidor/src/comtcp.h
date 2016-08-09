@@ -188,7 +188,7 @@ void tcp_server_recv_cb(void *arg, char *tcp_data, unsigned short length){
    // Indicador de recepción de datos.
    digitalWrite(2, !digitalRead(2));
 
-   #ifdef _DEBUG_COMUNICACION_LIMIT
+   #ifdef _DEBUG_COMUNICACION
        debug.print("[TCP_RV_CB] Recepcion de datos. Información recibida: ");
        debug.println(tcp_data);
    #endif
