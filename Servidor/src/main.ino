@@ -16,7 +16,7 @@ extern "C" {
 #include <def.h>
 #include <GPIO.h>
 #include <MCP39F511X.h>
-#include <ESPWifi.h>
+#include <confwifi.h>
 
 void setup() {
 
