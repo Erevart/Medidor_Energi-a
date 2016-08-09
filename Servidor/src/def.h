@@ -18,12 +18,11 @@
 /* -------------------------------------------------------------------------------------------------------------*/
 
 /* Parametros de Debug */
-#define _DEBUG_WIFI   // Muestra por puerto serie información relativa la configuracion wifi.
-#define _DEBUG_COMUNICACION
-#define _DEBUG_COMUNICACION_LIMIT
-//#define _DEBUG_ERROR  // Muestra los mensajes de error.
-//#define _DEBUG_TX     // Muestra la información que transmitiría al MCP.
-//#define _DEBUG_RX     // Muestra la información que recibiría del MCP
+#define _DEBUG_WIFI         // Muestra por puerto serie información relativa la configuración wifi.
+#define _DEBUG_COMUNICACION // Muestra por puerto serie información relativa la comunicación TCP.
+//#define _DEBUG_ERROR      // Muestra los mensajes de error.
+//#define _DEBUG_TX         // Muestra la información que transmitiría al MCP.
+//#define _DEBUG_RX         // Muestra la información que recibiría del MCP
 
 
 
@@ -67,7 +66,7 @@
 /* Parametros Comunicacion ESP8266 - ESP8266 */
 #define TCP_TIEMPO_CONEXION 120     // Tiempo de inactividad, para cerrar la comunicación TCP.
 #define MAX_ESPWIFI 15000           // Tiempo de espera antes de considerar que la comunicacion wifi ha sido perdida.
-#define USUARIO_REGISTRADO 0xEE     
+#define USUARIO_REGISTRADO 0xEE
 #define WACK 0xCC
 
 /* Parametros comunicacion ESP8266 - MCP39F51X */
@@ -76,6 +75,8 @@
 
 
 /* Prototipo de Funciones */
+
+// Confwifi
 void servidor_tcp();
 void configWifi();
 void comunicacion_cliente();
@@ -83,22 +84,26 @@ void isrsinc();
 
 
 /* Variables */
+  /* Aún en pruebas */
 uint32_t temp = 0;
 uint32_t tension = 0;
 uint32_t corriente = 0;
 uint32_t frecuencia = 0;
-char CMD = '$';
-bool reset_wifi = false;
-os_timer_t *timerrest;
+  /* Aún en pruebas */
+
+char CMD = '$';             // Identifica la operación solicitda. El simbolo $ indica el estado de reposo.
+bool reset_wifi = false;    // Determina si la red wifi registrada en memoria es diferente a la escenada y por lo tanto
+                            // es necesario confirmar el registro del dispositivo. Se supone que el dispositivo no procede
+                            // no procede de un reset y por lo tanto no es necersario al confirmación de registro.
+os_timer_t *timerrest;      // Variable timer por software
 
 
-unsigned long currentMillis = 0;    // Variable que indica el tiempo actual.
-unsigned long previousMillis = 0;   // Variable que indica el instante de tiempo en el que se realizo la ultima ejecucion del bucle principal.
+unsigned long currentMillis = 0;      // Variable que indica el tiempo actual.
+unsigned long previousMillis = 0;     // Variable que indica el instante de tiempo en el que se realizo la ultima ejecucion del bucle principal.
 unsigned long loop2_previousTime = 0; // Variable que indica el instante de tiempo en el que se ejecuto la loop2_
-uint32_t timecounter = 0;           // Variable que indica el numero de iteracciones del bucle principal.
-struct espconn* esp_conn;
-bool registrado = false;
-bool tcp_establecido = false;
-bool tcp_desconectado = false;
-bool tcp_finalizar = false;
-bool transmision_finalizada = true;
+uint32_t timecounter = 0;             // Variable que indica el numero de iteracciones del bucle principal.
+struct espconn* esp_conn;             // Estructura que identifica y determina la comunicación TCP.
+bool registrado = false;              // Indica si el dispositivo ha sido registrado en la red wifi conectada.
+bool tcp_establecido = false;         // TCP establecido.
+bool tcp_desconectado = false;        // TCP desconectado.
+bool transmision_finalizada = true;   // Transmision de datos por TCP realizada.
