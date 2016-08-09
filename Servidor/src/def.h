@@ -59,29 +59,25 @@
 #define loop4       300   // Loop de 3 s
 
 /* Parametros Wifi */
-#define PRE_SSID "MCPESP_"
-#define CONTRASENA "zxcvmnbv1234"
-#define TIEMPO_RESET 30000 // Tiempo de espera para realizar borrar los datos de configuración de la red wifi.
-#define MCPESP_SERVER_PORT 23
+#define PRE_SSID "MCPESP_"          // Prefijo de la red a buscar.
+#define CONTRASENA "zxcvmnbv1234"   // Contraseña
+#define TIEMPO_RESET 30000          // Tiempo de espera para realizar borrar los datos de configuración de la red wifi.
+#define MCPESP_SERVER_PORT 23       // Puerto de conexión a los servidores.
 
 /* Parametros Comunicacion ESP8266 - ESP8266 */
-#define USUARIO_REGISTRADO 0xEE
+#define TCP_TIEMPO_CONEXION 120     // Tiempo de inactividad, para cerrar la comunicación TCP.
+#define MAX_ESPWIFI 15000           // Tiempo de espera antes de considerar que la comunicacion wifi ha sido perdida.
+#define USUARIO_REGISTRADO 0xEE     
 #define WACK 0xCC
+
+/* Parametros comunicacion ESP8266 - MCP39F51X */
 #define MAX_INTENTOS 1           // Numero de intentos para establecer la comunicacion sino se ha tansmitido correctamente.
-#define MCPESP_SERVER_PORT 23      // Puerto de conexión a los servidores.
-#define TCP_TIEMPO_CONEXION 120  // Tiempo de esperar, para cerrar la comunicación TCP, después de parar la comunicación.
-#define MAX_ESPWIFI 15000
 
 
 
 /* Prototipo de Funciones */
 void servidor_tcp();
-
-
-/* Declaración de funciones */
-
 void configWifi();
-void check_clientes();
 void comunicacion_cliente();
 void isrsinc();
 
