@@ -24,7 +24,7 @@ void configWifi(){
     wifi_station_get_config_default(config);
 
     #ifdef _DEBUG_WIFI
-      debug.print("[CONFW] SSID guardado en memoria: "):
+      debug.print("[CONFW] SSID guardado en memoria: ");
       for(int i = 0; i < 15; i++){
         debug.print((char)config->ssid[i]);
       }

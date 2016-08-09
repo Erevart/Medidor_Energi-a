@@ -31,7 +31,7 @@ bool tcp_sent(uint8_t *pdata){
 
     #ifdef _DEBUG_COMUNICACION
       debug.print("[TCP_ST] Codigo de envio: ");
-      debug.println(res_envio);
+      debug.println(info_envio);
     #endif
 
     if ((millis()-time0)>MAX_ESPWIFI){
@@ -266,10 +266,10 @@ void tcp_listen(void *arg){
 void servidor_tcp(){
 
  int8_t info_con;
+ unsigned long time0;
 
  #ifdef _DEBUG_COMUNICACION_CONEXION
    debug.println("[CTCP] Arranque del servidor tcp.");
-   unsigned long time0 = millis();
  #endif
 
  // Configuración de los parámetros de la comunicación TCP
