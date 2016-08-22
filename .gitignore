@@ -1,4 +1,4 @@
-.pioenvs/
+.pioenvs
 app/bin/
 app/pde.jar
 build/macosx/work/
