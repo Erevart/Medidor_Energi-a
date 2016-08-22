@@ -4,27 +4,64 @@
 
  */
 
- void scan_done(void *arg, STATUS status)
+ /******************************************************************************
+  * FunctionName : scan_done
+  * Description  : scan done callback
+  * Parameters   :  arg: contain the aps information;
+                           status: scan over status
+  * Returns      : none
+  * Función : wifi_station_scan_done
+  * @brief  : Realiza una escaneo de las redes inalambricas cercanas y se conecta a aquellas
+                   cuyo nombre empiece por el prefijo "MCPESP_".
+  * @param  : arg - puntero a la estrcutura de datos que indica las redes detectadas.
+  * @param  : status - variable que indica si la escaneo de redes ha sido realizado
+  *            con éxito
+  * @return : none
+  * Etiqueta debug : Todos los comentarios para depuración de esta función
+                    estarán asociados a la etiqueta: "SCAN".
+ *******************************************************************************/
+ void wifi_station_scan_done(void *arg, STATUS status)
 {
-  uint8 ssid[33];
-  char temp[128];
+
   if (status == OK){
     struct bss_info *bss_link = (struct bss_info *)arg;
-    while (bss_link != NULL)
-    {
-      memset(ssid, 0, 33);
-      if (strlen( (char*) bss_link->ssid) <= 32)
-        memcpy(ssid, (char*) bss_link->ssid, strlen( (char*) bss_link->ssid));
-      else
-        memcpy(ssid, bss_link->ssid, 32);
-      printf("(%d,\"%s\",%d,\""MACSTR"\",%d)\r\n",
-                 bss_link->authmode, ssid, bss_link->rssi,
-                 MAC2STR(bss_link->bssid),bss_link->channel);
+    while (bss_link != NULL){
+
+      #ifdef _DEBUG_WIFI
+        debug.print("[SCAN] Buscando red cliente. Encontrada: ");
+        debug.println((char*)bss_link->ssid);
+      #endif
+      if(os_strcmp((char*)bss_link->ssid,"P") >= 0){
+        #ifdef _DEBUG_WIFI
+          debug.print("[SCAN] Red encontrada: ");
+          debug.print((char*)bss_link->ssid);
+          debug.print(" Longitud:");
+          debug.println(os_strlen((char*)bss_link->ssid));
+        #endif
+      break;
+      }
+      debug.print("(");
+      debug.print(bss_link->authmode);
+      debug.print(",");
+      debug.print((char*) bss_link->ssid);
+      debug.print(",");
+      debug.print(bss_link->rssi);
+      debug.print(",");
+    //  debug.print(MAC2STR(bss_link->bssid));
+      debug.print(",");
+      debug.print(bss_link->channel);
+      debug.println(")");
       bss_link = bss_link->next.stqe_next;
-} }
-  else{
-     printf("scan fail !!!\r\n");
-} }
+    }
+  }
+  else {
+     estadoscan = false;
+     #ifdef _DEBUG_WIFI
+      debug.println("[SCAN] Escaneo fallido. ");
+     #endif
+  }
+}
+
 
  /******************************************************************************
   * Función : configWifi
@@ -32,7 +69,7 @@
                    cuyo nombre empiece por el prefijo "MCPESP_".
   * @param  : none
   * @return : none
-  * Etiqueta debug : Todos los comentarios para depueración de esta función
+  * Etiqueta debug : Todos los comentarios para depuración de esta función
                     estarán asociados a la etiqueta: "CONFW".
   *******************************************************************************/
 void configWifi(){
@@ -42,7 +79,7 @@ void configWifi(){
     struct station_config *config = (struct station_config *)malloc(sizeof(struct
     station_config));
 
-    // Se establece modo estación.
+    // Se establece modo AP.
     wifi_set_opmode(STATION_MODE);
     delay(100);
 
@@ -61,20 +98,21 @@ void configWifi(){
     // reset del dispositivo. Se realiza la búsqueda de nuevas redes inalambricas.
     if (config->ssid[2] != 'P'){
 
-      wifi_station_scan(NULL,scan_done);
+      struct scan_config config;
+
+      os_memset(&config, 0, sizeof(config));
+
+      do {
+        if (estadoscan == false){
+          wifi_station_scan(&config, wifi_station_scan_done);
+          estadoscan = -1;
+        }
+        yield();
+      } while (estadoscan != true);
+
 /*
       // Se determina el número de redes disponibles
       do {
-        numwifi = 0;
-        // Se determina el número de redes visibles
-        do {
-          numwifi = WiFi.scanNetworks();
-          #ifdef _DEBUG_WIFI
-            debug.print("[CONFW] Numero de redes encontradas: ");
-            debug.println(numwifi);
-          #endif
-          delay(1000);
-        } while (!numwifi);
 
         // Se identifican las redes visibles, y comprueba si ssid presenta el prefijo
         // predefinido.
@@ -142,6 +180,7 @@ void configWifi(){
     // Las nuevas modificaciones son grabadas en la memoria flash.
     wifi_station_set_config(config);
 */
+
   }
 
   os_free(config);
@@ -160,7 +199,10 @@ void configWifi(){
     unsigned long t1 = millis();
   #endif
     while (WiFi.status() != WL_CONNECTED) {
-      delay(1);
+      yield();
+//      if ((millis()-time0)>MAX_ESPWIFI){
+//        return false;
+//      }
     }
   #ifdef _DEBUG_WIFI
     debug.print("[CONFW] Conectado. Tiempo requerido: ");
@@ -186,12 +228,12 @@ void configWifi(){
             y borra la información correspondiente a ésta de la memoria flash.
  * @param  : pArg - puntero que indica el timer que ha disparado la interrupción.
  * @return : none
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "RST_CONFW".
  *******************************************************************************/
 void reset_configwifi(void *pArg){
 
-  if(digitalRead(GPIO_SINC) == LOW){
+  if(digitalRead(GPIO_SINC) == HIGH){
 
     struct station_config *config = (struct station_config *)malloc(sizeof(struct
     station_config));
@@ -228,7 +270,7 @@ void reset_configwifi(void *pArg){
              información y reiniciar el dispositivo.
  * @param  : none
  * @return : none
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "ISR".
  *******************************************************************************/
 void isrsinc(){
@@ -264,7 +306,7 @@ void isrsinc(){
  * @param  : none
  * @return : true - El dispositivo ha sido registrado correctamente.
  * @return : false - El dispositivo no ha sido registrado.
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "CNF_CNX".
  *******************************************************************************/
 int8_t confirmar_conexion(){
