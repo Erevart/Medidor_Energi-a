@@ -25,8 +25,9 @@
 
   if (status == OK){
     struct bss_info *bss_link = (struct bss_info *)arg;
+    // Se identifican las redes visibles, y comprueba si el SSID presenta el
+    // prefijo predefinido.
     while (bss_link != NULL){
-
       #ifdef _DEBUG_WIFI
         debug.print("[SCAN] Buscando red cliente. Encontrada: ");
         debug.println((char*)bss_link->ssid);
@@ -110,7 +111,7 @@ void configWifi(){
         yield();
       } while (estadoscan != true);
 
-/*
+
       // Se determina el número de redes disponibles
       do {
 
