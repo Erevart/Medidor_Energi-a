@@ -1,4 +1,4 @@
 *.o
 *.elf
 *.bin
-*.sconsign.dblite
+*.dblite

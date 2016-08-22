@@ -4,6 +4,28 @@
 
  */
 
+ void scan_done(void *arg, STATUS status)
+{
+  uint8 ssid[33];
+  char temp[128];
+  if (status == OK){
+    struct bss_info *bss_link = (struct bss_info *)arg;
+    while (bss_link != NULL)
+    {
+      memset(ssid, 0, 33);
+      if (strlen( (char*) bss_link->ssid) <= 32)
+        memcpy(ssid, (char*) bss_link->ssid, strlen( (char*) bss_link->ssid));
+      else
+        memcpy(ssid, bss_link->ssid, 32);
+      printf("(%d,\"%s\",%d,\""MACSTR"\",%d)\r\n",
+                 bss_link->authmode, ssid, bss_link->rssi,
+                 MAC2STR(bss_link->bssid),bss_link->channel);
+      bss_link = bss_link->next.stqe_next;
+} }
+  else{
+     printf("scan fail !!!\r\n");
+} }
+
  /******************************************************************************
   * Función : configWifi
   * @brief  : Realiza una escaneo de las redes inalambricas cercanas y se conecta a aquellas
@@ -20,6 +42,10 @@ void configWifi(){
     struct station_config *config = (struct station_config *)malloc(sizeof(struct
     station_config));
 
+    // Se establece modo estación.
+    wifi_set_opmode(STATION_MODE);
+    delay(100);
+
     // Se lee de memoria la configuración definida en sesiones anteriores
     wifi_station_get_config_default(config);
 
@@ -35,12 +61,8 @@ void configWifi(){
     // reset del dispositivo. Se realiza la búsqueda de nuevas redes inalambricas.
     if (config->ssid[2] != 'P'){
 
-      // Se establece modo estación.
-      wifi_set_opmode(STATION_MODE);
-      delay(100);
-
-      // Realizar condicional si no hay datos en memoria se buscan nuevas redes.
-
+      wifi_station_scan(NULL,scan_done);
+/*
       // Se determina el número de redes disponibles
       do {
         numwifi = 0;
@@ -119,7 +141,7 @@ void configWifi(){
 
     // Las nuevas modificaciones son grabadas en la memoria flash.
     wifi_station_set_config(config);
-
+*/
   }
 
   os_free(config);
