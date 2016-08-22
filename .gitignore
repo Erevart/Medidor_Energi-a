@@ -1,4 +1,5 @@
 .pioenvs
+./.pioenvs
 app/bin/
 app/pde.jar
 build/macosx/work/
@@ -67,5 +68,8 @@ avr-toolchain-*.zip
 manifest.mf
 nbbuild.xml
 nbproject
-
 *.dblite
+*.hash
+*.url
+
+*.o
