@@ -5,12 +5,107 @@
  */
 
  /******************************************************************************
+  * Función : wifi_station_scan_done
+  * @brief  : Realiza una escaneo de las redes inalambricas cercanas y se conecta a aquellas
+                   cuyo nombre empiece por el prefijo "MCPESP_".
+  * @param  : arg - puntero a la estrcutura de datos que indica las redes detectadas.
+  * @param  : status - variable que indica si la escaneo de redes ha sido realizado
+  *            con éxito
+  * @return : none
+  * Etiqueta debug : Todos los comentarios para depuración de esta función
+                    estarán asociados a la etiqueta: "SCAN".
+ *******************************************************************************/
+ void wifi_station_scan_done(void *arg, STATUS status)
+{
+
+  if (status == OK){
+
+    char cmpssid[7];
+    struct bss_info *bss_link = (struct bss_info *)arg;
+
+    // Se identifican las redes visibles, y comprueba si el SSID presenta el
+    // prefijo predefinido.
+    while (bss_link != NULL){
+      #ifdef _DEBUG_WIFI
+        debug.print("[SCAN] Buscando red cliente. Encontrada: ");
+        debug.println((char*) bss_link->ssid);
+      #endif
+      memcpy(cmpssid, bss_link->ssid, 7);
+      if(os_strcmp(cmpssid,PRE_SSID) == 0){
+
+        struct station_config *config = (struct station_config *)malloc(sizeof(struct
+        station_config));
+
+        // Se lee de memoria la configuración definida en sesiones anteriores
+        wifi_station_get_config_default(config);
+
+        #ifdef _DEBUG_WIFI
+          debug.print("[SCAN] Red encontrada: ");
+          debug.print((char*)bss_link->ssid);
+          debug.print(" Longitud:");
+          debug.println(os_strlen((char*)bss_link->ssid));
+        #endif
+
+        // Se comprueba si la red detectada ya fue registrada previamente.
+        os_strcpy(reinterpret_cast<char*>(config->ssid), "MCPES");
+        if (os_strcmp(reinterpret_cast<const char*>(config->ssid), (char*)bss_link->ssid) == 0){
+          reset_wifi = false;
+          os_strcpy(reinterpret_cast<char*>(config->password), CONTRASENA);
+          #ifdef _DEBUG_WIFI
+            debug.println("[SCAN] Red guardada previamente.");
+          #endif
+        }
+        else {
+          reset_wifi = true;
+          #ifdef _DEBUG_WIFI
+            debug.println("[SCAN] Red no guardada previamente.");
+          #endif
+        }
+
+        os_strcpy(reinterpret_cast<char*>(config->ssid), (char*)bss_link->ssid);
+        os_strcpy(reinterpret_cast<char*>(config->password), CONTRASENA);
+        config->bssid_set = 0;
+
+        #ifdef _DEBUG_WIFI
+          debug.print("[SCAN] SSID: ");
+          debug.println((char*)bss_link->ssid);
+          for(int i = 0; i < 15; i++){
+            debug.print((char)config->ssid[i]);
+          }
+          debug.println("\n[CONFW] PASSWORD");
+          for(int i = 0; i < 12; ++i){
+            debug.print((char)config->password[i]);
+          }
+        #endif
+
+        // Las nuevas modificaciones son grabadas en la memoria flash.
+        wifi_station_set_config(config);
+
+        os_free(config);
+
+        estadoscan = true;
+        return;
+      }
+      bss_link = bss_link->next.stqe_next;
+    }
+  }
+  #ifdef _DEBUG_WIFI
+    else {
+        debug.println("[SCAN] Escaneo fallido. ");
+    }
+  #endif
+
+   estadoscan = false;
+}
+
+
+ /******************************************************************************
   * Función : configWifi
   * @brief  : Realiza una escaneo de las redes inalambricas cercanas y se conecta a aquellas
                    cuyo nombre empiece por el prefijo "MCPESP_".
   * @param  : none
   * @return : none
-  * Etiqueta debug : Todos los comentarios para depueración de esta función
+  * Etiqueta debug : Todos los comentarios para depuración de esta función
                     estarán asociados a la etiqueta: "CONFW".
   *******************************************************************************/
 void configWifi(){
@@ -19,6 +114,10 @@ void configWifi(){
     String ssidscan;
     struct station_config *config = (struct station_config *)malloc(sizeof(struct
     station_config));
+
+    // Se establece modo AP.
+    wifi_set_opmode(STATION_MODE);
+    delay(100);
 
     // Se lee de memoria la configuración definida en sesiones anteriores
     wifi_station_get_config_default(config);
@@ -35,90 +134,17 @@ void configWifi(){
     // reset del dispositivo. Se realiza la búsqueda de nuevas redes inalambricas.
     if (config->ssid[2] != 'P'){
 
-      // Se establece modo estación.
-      wifi_set_opmode(STATION_MODE);
-      delay(100);
+      struct scan_config scanconfig;
 
-      // Realizar condicional si no hay datos en memoria se buscan nuevas redes.
+      os_memset(&scanconfig, 0, sizeof(scanconfig));
 
-      // Se determina el número de redes disponibles
       do {
-        numwifi = 0;
-        // Se determina el número de redes visibles
-        do {
-          numwifi = WiFi.scanNetworks();
-          #ifdef _DEBUG_WIFI
-            debug.print("[CONFW] Numero de redes encontradas: ");
-            debug.println(numwifi);
-          #endif
-          delay(1000);
-        } while (!numwifi);
-
-        // Se identifican las redes visibles, y comprueba si ssid presenta el prefijo
-        // predefinido.
-        for (int i = 0; i < numwifi; ++i)
-        {
-          ssidscan = WiFi.SSID(i);
-          #ifdef _DEBUG_WIFI
-            debug.print("[CONFW] Buscando red cliente. Encontrada: ");
-            debug.print(ssidscan);
-            debug.println(ssidscan.indexOf(PRE_SSID));
-            delay(200);
-          #endif
-          if(ssidscan.indexOf(PRE_SSID) >= 0){
-            numwifi = -1;
-            #ifdef _DEBUG_WIFI
-              debug.print("[CONFW] Red encontrada: ");
-              debug.print(ssidscan.indexOf(PRE_SSID));
-              debug.print(" Longitud:");
-              debug.println(ssidscan.length());
-            #endif
-          break;
-          }
-          delay(50);
+        if (estadoscan == false){
+          wifi_station_scan(&scanconfig, wifi_station_scan_done);
+          estadoscan = -1;
         }
-
-    } while(numwifi != -1);
-
-    // Se convierte la variable ssidscan de String a char.
-    uint8_t len = ssidscan.length();
-    char ssid[len];
-    ssidscan.toCharArray(ssid,len+1);
-
-    // Se comprueba si la red detectada ya fue registrada previamente.
-    strcpy(reinterpret_cast<char*>(config->ssid), "MCPES");
-    if (strcmp(reinterpret_cast<const char*>(config->ssid), ssid) == 0){
-      reset_wifi = false;
-      strcpy(reinterpret_cast<char*>(config->password), CONTRASENA);
-      #ifdef _DEBUG_WIFI
-        debug.println("[CONFW] Red guardada previamente.");
-      #endif
-    }
-    else {
-      reset_wifi = true;
-      #ifdef _DEBUG_WIFI
-        debug.println("[CONFW] Red no guardada previamente.");
-      #endif
-    }
-
-    strcpy(reinterpret_cast<char*>(config->ssid), ssid);
-    strcpy(reinterpret_cast<char*>(config->password), CONTRASENA);
-    config->bssid_set = 0;
-
-    #ifdef _DEBUG_WIFI
-      debug.print("[CONFW] SSID: ");
-      debug.println(ssidscan);
-      for(int i = 0; i < 15; i++){
-        debug.print((char)config->ssid[i]);
-      }
-      debug.println("\n[CONFW] PASSWORD");
-      for(int i = 0; i < 12; ++i){
-        debug.print((char)config->password[i]);
-      }
-    #endif
-
-    // Las nuevas modificaciones son grabadas en la memoria flash.
-    wifi_station_set_config(config);
+        yield();
+      } while (estadoscan != true);
 
   }
 
@@ -138,7 +164,10 @@ void configWifi(){
     unsigned long t1 = millis();
   #endif
     while (WiFi.status() != WL_CONNECTED) {
-      delay(1);
+      yield();
+//      if ((millis()-time0)>MAX_ESPWIFI){
+//        return false;
+//      }
     }
   #ifdef _DEBUG_WIFI
     debug.print("[CONFW] Conectado. Tiempo requerido: ");
@@ -164,12 +193,12 @@ void configWifi(){
             y borra la información correspondiente a ésta de la memoria flash.
  * @param  : pArg - puntero que indica el timer que ha disparado la interrupción.
  * @return : none
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "RST_CONFW".
  *******************************************************************************/
 void reset_configwifi(void *pArg){
 
-  if(digitalRead(GPIO_SINC) == LOW){
+  if(digitalRead(GPIO_SINC) == HIGH){
 
     struct station_config *config = (struct station_config *)malloc(sizeof(struct
     station_config));
@@ -206,7 +235,7 @@ void reset_configwifi(void *pArg){
              información y reiniciar el dispositivo.
  * @param  : none
  * @return : none
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "ISR".
  *******************************************************************************/
 void isrsinc(){
@@ -242,7 +271,7 @@ void isrsinc(){
  * @param  : none
  * @return : true - El dispositivo ha sido registrado correctamente.
  * @return : false - El dispositivo no ha sido registrado.
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "CNF_CNX".
  *******************************************************************************/
 int8_t confirmar_conexion(){

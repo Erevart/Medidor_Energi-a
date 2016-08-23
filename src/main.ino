@@ -1,8 +1,4 @@
-/*
- *  This sketch demonstrates how to scan WiFi networks.
- *  The API is almost the same as with the WiFi Shield library,
- *  the most obvious difference being the different file you need to include:
- */
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
@@ -20,8 +16,6 @@ extern "C" {
 #include <confwifi.h>
 
 void setup() {
-
-  delay(2000);
 
   /**********************************/
   /*   Definicion Puerto I/O        */

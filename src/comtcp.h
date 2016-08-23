@@ -11,7 +11,7 @@
  * @param  : pdata - Puntero al array de datos que se desea enviar
  * @return : true - El envio de los datos se ha realizado correctamente.
  * @return : false - El envio de los datos no se ha podido realizar.
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "TCP_ST".
  *******************************************************************************/
 bool tcp_sent(uint8_t *pdata){
@@ -53,7 +53,7 @@ bool tcp_sent(uint8_t *pdata){
               comunicación TCP establecida previamente.
   * @param  : none
   * @return : none
-  * Etiqueta debug : Todos los comentarios para depueración de esta función
+  * Etiqueta debug : Todos los comentarios para depuración de esta función
                     estarán asociados a la etiqueta: "COMCL".
   *******************************************************************************/
 void comunicacion_cliente(){
@@ -97,7 +97,7 @@ void comunicacion_cliente(){
        #endif
      break;
 
-     // Operación de depueración
+     // Operación de depuración
      #ifdef _DEBUG_COMUNICACION
        case '!':
          debug.println("[COMCL] !Soy el servidor 1.");
@@ -119,7 +119,7 @@ void comunicacion_cliente(){
              ha sido enviados correctamente.
  * @param  : arg - puntero a la variable tipo espconn que determina la comunicación.
  * @return : none
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "TCP_ST_CB".
  *******************************************************************************/
 void tcp_server_sent_cb(void *arg){
@@ -137,7 +137,7 @@ void tcp_server_sent_cb(void *arg){
              comunicación tcp ha finalizado.
  * @param  : arg - puntero a la variable tipo espconn que determina la comunicación.
  * @return : none
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "TCP_DC_CB".
  *******************************************************************************/
 void tcp_server_discon_cb(void *arg){
@@ -159,7 +159,7 @@ void tcp_server_discon_cb(void *arg){
              comunicación tcp ha sido forzada a cerrarse.
  * @param  : arg - puntero a la variable tipo espconn que determina la comunicación.
  * @return : none
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "TCP_RC_CB".
  *******************************************************************************/
 void tcp_server_recon_cb(void *arg, sint8 err){
@@ -181,7 +181,7 @@ void tcp_server_recon_cb(void *arg, sint8 err){
              la trama de datos recibida e identificar la operación solicitada.
  * @param  : arg - puntero a la variable tipo espconn que determina la comunicación.
  * @return : none
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "TCP_RV_CB".
  *******************************************************************************/
 void tcp_server_recv_cb(void *arg, char *tcp_data, unsigned short length){
@@ -228,7 +228,7 @@ void tcp_server_recv_cb(void *arg, char *tcp_data, unsigned short length){
              de Callback para los distintos eventos de la comunicación TCP.
  * @param  : arg - puntero a la variable tipo espconn que determina la comunicación.
  * @return : none
- * Etiqueta debug : Todos los comentarios para depueración de esta función
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "TCPL".
  *******************************************************************************/
 void tcp_listen(void *arg){
@@ -260,7 +260,7 @@ void tcp_listen(void *arg){
             de Callback para los distintos eventos de la comunicación TCP.
 * @param  : none
 * @return : none
-* Etiqueta debug : Todos los comentarios para depueración de esta función
+* Etiqueta debug : Todos los comentarios para depuración de esta función
                   estarán asociados a la etiqueta: "CTCP".
 *******************************************************************************/
 void servidor_tcp(){

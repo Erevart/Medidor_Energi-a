@@ -60,7 +60,7 @@
 /* Parametros Wifi */
 #define PRE_SSID "MCPESP_"          // Prefijo de la red a buscar.
 #define CONTRASENA "zxcvmnbv1234"   // Contraseña
-#define TIEMPO_RESET 30000          // Tiempo de espera para realizar borrar los datos de configuración de la red wifi.
+#define TIEMPO_RESET 10000          // Tiempo de espera para realizar borrar los datos de configuración de la red wifi.
 #define MCPESP_SERVER_PORT 23       // Puerto de conexión a los servidores.
 
 /* Parametros Comunicacion ESP8266 - ESP8266 */
@@ -84,26 +84,31 @@ void isrsinc();
 
 
 /* Variables */
-  /* Aún en pruebas */
-uint32_t temp = 0;
-uint32_t tension = 0;
-uint32_t corriente = 0;
-uint32_t frecuencia = 0;
-  /* Aún en pruebas */
+struct espconn* esp_conn;             // Estructura que identifica y determina la comunicación TCP.
 
-char CMD = '$';             // Identifica la operación solicitda. El simbolo $ indica el estado de reposo.
-bool reset_wifi = false;    // Determina si la red wifi registrada en memoria es diferente a la escenada y por lo tanto
-                            // es necesario confirmar el registro del dispositivo. Se supone que el dispositivo no procede
-                            // no procede de un reset y por lo tanto no es necersario al confirmación de registro.
 os_timer_t *timerrest;      // Variable timer por software
-
 
 unsigned long currentMillis = 0;      // Variable que indica el tiempo actual.
 unsigned long previousMillis = 0;     // Variable que indica el instante de tiempo en el que se realizo la ultima ejecucion del bucle principal.
 unsigned long loop2_previousTime = 0; // Variable que indica el instante de tiempo en el que se ejecuto la loop2_
+
+/* Aún en pruebas */
+uint32_t temp = 0;
+uint32_t tension = 0;
+uint32_t corriente = 0;
+uint32_t frecuencia = 0;
+/* Aún en pruebas */
 uint32_t timecounter = 0;             // Variable que indica el numero de iteracciones del bucle principal.
-struct espconn* esp_conn;             // Estructura que identifica y determina la comunicación TCP.
+
+int8_t estadoscan = false;
+
+char CMD = '$';             // Identifica la operación solicitda. El simbolo $ indica el estado de reposo.
+
+
 bool registrado = false;              // Indica si el dispositivo ha sido registrado en la red wifi conectada.
 bool tcp_establecido = false;         // TCP establecido.
 bool tcp_desconectado = false;        // TCP desconectado.
 bool transmision_finalizada = true;   // Transmision de datos por TCP realizada.
+bool reset_wifi = false;              // Determina si la red wifi registrada en memoria es diferente a la escenada y por lo tanto
+                                      // es necesario confirmar el registro del dispositivo. Se supone que el dispositivo no procede
+                                      // no procede de un reset y por lo tanto no es necersario al confirmación de registro.
