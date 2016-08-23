@@ -100,7 +100,7 @@ uint32_t frecuencia = 0;
 /* Aún en pruebas */
 uint32_t timecounter = 0;             // Variable que indica el numero de iteracciones del bucle principal.
 
-int8_t estadoscan;
+int8_t estadoscan = false;
 
 char CMD = '$';             // Identifica la operación solicitda. El simbolo $ indica el estado de reposo.
 
