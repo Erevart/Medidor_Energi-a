@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+.pioenvs
+.clang_complete
+.gcc-flags.json
+./.pioenvs
 .pioenvs/
 app/bin/
 app/pde.jar
@@ -63,6 +68,19 @@ avr-toolchain-*.zip
 /arduino-core/nbproject/private/
 /app/build/
 /arduino-core/build/
+<<<<<<< HEAD
+manifest.mf
+nbbuild.xml
+nbproject
+*.dblite
+*.hash
+*.url
+*.o
+.pioenvs/.sconsign.dblite
+*.bin
+.pioenvs/esp12e/firmware.bin
+.pioenvs/esp12e/firmware.elf
+.pioenvs/esp12e/src/tmp_ino_to.o
 
 manifest.mf
 nbbuild.xml
