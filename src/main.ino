@@ -45,7 +45,7 @@ void setup() {
   /*****************/
   /* RTC timer     */
   /*****************/
-  update_rtc_time(true)
+  update_rtc_time(true);
 
   /******************************/
   /*   Configuración Wifi       */
