@@ -132,7 +132,7 @@ void tcp_server_sent_cb(void *arg){
 }
 
 /******************************************************************************
- * Función : tcp_server_sent_cb
+ * Función : tcp_server_discon_cb
  * @brief  : Callback cuando la comunicación tcp se finaliza. Indica que la
              comunicación tcp ha finalizado.
  * @param  : arg - puntero a la variable tipo espconn que determina la comunicación.

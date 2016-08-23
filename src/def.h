@@ -20,6 +20,8 @@
 /* Parametros de Debug */
 #define _DEBUG_WIFI         // Muestra por puerto serie información relativa la configuración wifi.
 #define _DEBUG_COMUNICACION // Muestra por puerto serie información relativa la comunicación TCP.
+#define _DEBUG_RTC          // Muestra el tiempo de funcionamiento del dispositivo desde la ultima sincronización.
+#define _DEBUG_RTC_TEST     // Muestras el test de comparación entre las variables de tiempo del dispositovo.
 //#define _DEBUG_ERROR      // Muestra los mensajes de error.
 //#define _DEBUG_TX         // Muestra la información que transmitiría al MCP.
 //#define _DEBUG_RX         // Muestra la información que recibiría del MCP
@@ -74,13 +76,51 @@
 
 
 
+/* Estructuras de datos */
+
+// Estructura de datos RTC
+typedef struct {
+  uint64 timeAcc;
+  uint32 magic;
+  uint32 timeBase;
+} RTC_TIMER;
+
 /* Prototipo de Funciones */
 
-// Confwifi
-void servidor_tcp();
-void configWifi();
+// comtcp
+bool tcp_sent(uint8_t *pdata);
 void comunicacion_cliente();
+void tcp_server_sent_cb(void *arg);
+void tcp_server_discon_cb(void *arg);
+void tcp_server_recon_cb(void *arg, sint8 err);
+void tcp_server_recv_cb(void *arg, char *tcp_data, unsigned short length);
+void tcp_listen(void *arg);
+void servidor_tcp();
+
+// confwifi
+void wifi_station_scan_done(void *arg, STATUS status);
+void configWifi();
+void reset_configwifi(void *pArg);
 void isrsinc();
+int8_t confirmar_conexion();
+
+
+// MCP39F511X
+void error(uint8_t code);
+uint8_t checkACK();
+uint8_t Getchecksum(uint8_t *frame);
+uint8_t _MCPwrite(uint16_t *reg, uint8_t *num_bytes, uint32_t *dato);
+void MCPwrite(uint16_t reg, uint8_t num_bytes, uint32_t dato);
+uint32_t _MCPread(uint16_t *reg, uint8_t *num_bytes);
+uint32_t MCPread(uint16_t reg, uint8_t num_bytes);
+void MCPsetap(uint16_t reg);
+void MCPsaveflash();
+void MCPeraseeprom();
+void MCPautogain(uint8_t parameter);
+
+// rtctime
+void update_rtc_time(bool reset);
+uint64_t get_rtc_time();
 
 
 /* Variables */

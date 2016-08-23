@@ -42,6 +42,11 @@ void setup() {
   /*****************/
   attachInterrupt(GPIO_SINC,isrsinc,FALLING);
 
+  /*****************/
+  /* RTC timer     */
+  /*****************/
+  update_rtc_time(true)
+
   /******************************/
   /*   Configuración Wifi       */
   /******************************/
@@ -120,6 +125,8 @@ void loop() {
      Frecuencia de Refresco:  1 Hz
    *************************************/
    if (timecounter % loop3 == 0){
+
+     get_rtc_time();
 
      // Si el cliente se desconecta, se cierra el canal de comunicación y
      // se abre una nuevo canal de comunicación para futuras conexiones.
