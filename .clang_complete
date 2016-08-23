@@ -1,0 +1,13 @@
+-I/Volumes/Mac_Datos/.platformio/packages/sdk-esp8266/include
+-I/Volumes/Mac_Datos/Documents/GitHub/Medidor_Energia_servidor/src
+-I/Volumes/Mac_Datos/Documents/GitHub/Medidor_Energia_servidor/src
+-I/Volumes/Mac_Datos/.platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include
+-I/Volumes/Mac_Datos/.platformio/packages/toolchain-xtensa/lib/gcc/xtensa-lx106-elf/4.8.2/include
+-I/Volumes/Mac_Datos/.platformio/packages/toolchain-xtensa/lib/gcc/xtensa-lx106-elf/4.8.2/include-fixed
+-DF_CPU=80000000L
+-D__ets__
+-DICACHE_FLASH
+-DPLATFORMIO=021102
+-DESP8266
+-DARDUINO_ARCH_ESP8266
+-DARDUINO_ESP8266_ESP12
