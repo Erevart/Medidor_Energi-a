@@ -17,7 +17,7 @@
 bool tcp_sent(uint8_t *pdata){
 
   unsigned long time0;
-  int8_t info_envio = -1;
+  int8_t info_tcp = -1;
 
   transmision_finalizada = false;
   time0 = millis();
@@ -26,12 +26,12 @@ bool tcp_sent(uint8_t *pdata){
 
     yield();
 
-    if (info_envio != ESPCONN_OK)
-       info_envio = espconn_send(esp_conn, pdata , strlen(reinterpret_cast<char*>(pdata)));
+    if (info_tcp != ESPCONN_OK)
+       info_tcp = espconn_send(esp_conn, pdata , strlen(reinterpret_cast<char*>(pdata)));
 
     #ifdef _DEBUG_COMUNICACION
       debug.print("[TCP_ST] Codigo de envio: ");
-      debug.println(info_envio);
+      debug.println(info_tcp);
     #endif
 
     if ((millis()-time0)>MAX_ESPWIFI){
@@ -82,6 +82,9 @@ void comunicacion_cliente(){
         return;
       }
 
+      // Se actualiza el contador de tiempo.
+      update_rtc_time(true);
+
       #ifdef _DEBUG_COMUNICACION
        debug.println("-----------------------------------------------");
        debug.print("[COMCL] REGISTRADO. Tiempo requerido: ");
@@ -98,14 +101,16 @@ void comunicacion_cliente(){
      break;
 
      // Operación de depuración
-     #ifdef _DEBUG_COMUNICACION
        case '!':
-         debug.println("[COMCL] !Soy el servidor 1.");
-         char psent2[18];
-         sprintf(psent2, "!Soy el servidor 1");
+        #ifdef _DEBUG_COMUNICACION
+          debug.print("[COMCL] !Soy el servidor: ");
+          debug.println(ESP.getChipId());
+        #endif
+         char psent2[200];
+         sprintf(psent2, "!->Soy el servidor: %d, Tiempo: %lld \r\n", ESP.getChipId(),\
+         ( get_rtc_time() / 10000000) / 100);
          tcp_sent(reinterpret_cast<uint8_t*>(psent2));
        break;
-    #endif
    }
 
    // Se indica que la operación solicitada ya ha sido realizada.
@@ -211,12 +216,12 @@ void tcp_server_recv_cb(void *arg, char *tcp_data, unsigned short length){
        break;
 
        // Operación de debug.
-       #ifdef _DEBUG_COMUNICACION
          case '!':
-             debug.println("TCP: Comunicacion !");
+             #ifdef _DEBUG_COMUNICACION
+              debug.println("TCP: Comunicacion !");
+             #endif
              CMD = tcp_data[0];
          break;
-       #endif
    }
 
 }
@@ -265,10 +270,10 @@ void tcp_listen(void *arg){
 *******************************************************************************/
 void servidor_tcp(){
 
- int8_t info_con;
+ int8_t info_tcp;
  unsigned long time0;
 
- #ifdef _DEBUG_COMUNICACION_CONEXION
+ #ifdef _DEBUG_COMUNICACION
    debug.println("[CTCP] Arranque del servidor tcp.");
  #endif
 
@@ -278,18 +283,18 @@ void servidor_tcp(){
  esp_conn->state = ESPCONN_NONE;
  esp_conn->proto.tcp = (esp_tcp *)os_malloc((uint32)sizeof(esp_tcp));
  esp_conn->proto.tcp->local_port = MCPESP_SERVER_PORT;
- info_con = espconn_accept(esp_conn);
 
  time0 = millis();
- #ifdef _DEBUG_COMUNICACION_CONEXION
-   debug.print("[CTCP] Código de arranque: ");
-   debug.println(info_con);
+ #ifdef _DEBUG_COMUNICACION
+   info_tcp = espconn_accept(esp_conn);
+   debug.print("[CTCP] Codigo de arranque: ");
+   debug.println(info_tcp);
 
-   while(info_con != ESPCONN_OK){
+   while(info_tcp != ESPCONN_OK){
      yield();
      debug.print("[CTCP] Estableciendo servidor TCP. Tiempo requerido: ");
      debug.println(millis()-time0);
-     info_con = espconn_accept(esp_conn);
+     info_tcp = espconn_accept(esp_conn);
      if ((millis()-time0)>MAX_ESPWIFI){
        return;
      }
@@ -308,8 +313,8 @@ void servidor_tcp(){
  // Se establace la función que será invocada cuando se inicie la comunicación.
  espconn_regist_connectcb(esp_conn, tcp_listen);
 
- #ifdef _DEBUG_COMUNICACION_CONEXION
-   debug.println("SERVICIO TCP: Establecido.");
+ #ifdef _DEBUG_COMUNICACION
+   debug.println("[CTCP] SERVICIO TCP: Establecido.");
  #endif
 
 }

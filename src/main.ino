@@ -7,9 +7,12 @@ extern "C" {
 #include <user_interface.h>
 #include <espconn.h>
 #include <mem.h>
+#include <ets_sys.h>
+#include <osapi.h>
 }
 
 #include <def.h>
+#include <rtcTime.h>
 #include <GPIO.h>
 #include <MCP39F511X.h>
 #include <comtcp.h>

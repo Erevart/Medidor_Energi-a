@@ -165,9 +165,6 @@ void configWifi(){
   #endif
     while (WiFi.status() != WL_CONNECTED) {
       yield();
-//      if ((millis()-time0)>MAX_ESPWIFI){
-//        return false;
-//      }
     }
   #ifdef _DEBUG_WIFI
     debug.print("[CONFW] Conectado. Tiempo requerido: ");
@@ -314,7 +311,10 @@ int8_t confirmar_conexion(){
 
   // Se confirma la recepción de la validación de registro del dispositivo.
   psent[0] = WACK;
-  time0 = millis();
+
+  #ifdef _DEBUG_COMUNICACION
+    time0 = millis();
+  #endif
 
   if (!tcp_sent(psent)){
     #ifdef _DEBUG_COMUNICACION
@@ -325,6 +325,9 @@ int8_t confirmar_conexion(){
     #endif
     return false;
   }
+
+  // Se actualiza el contador de tiempo.
+  update_rtc_time(true);
 
  #ifdef _DEBUG_COMUNICACION
       debug.println("-----------------------------------------------");
