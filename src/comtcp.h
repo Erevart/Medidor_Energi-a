@@ -107,7 +107,7 @@ void comunicacion_cliente(){
           debug.println(ESP.getChipId());
         #endif
          char psent2[200];
-         sprintf(psent2, "!->Soy el servidor: %d, Tiempo: %lld \r\n", ESP.getChipId(),\
+         sprintf(psent2, "!->Soy el servidor: %d, Tiempo: %llu \r\n", ESP.getChipId(),\
          ( get_rtc_time() / 10000000) / 100);
          tcp_sent(reinterpret_cast<uint8_t*>(psent2));
        break;
