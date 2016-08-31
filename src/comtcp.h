@@ -27,7 +27,7 @@ bool tcp_sent(uint8_t *pdata){
     yield();
 
     if (info_tcp != ESPCONN_OK)
-       info_tcp = espconn_send(esp_conn, pdata , strlen(reinterpret_cast<char*>(pdata)));
+       info_tcp = espconn_send(esp_conn, pdata , sizeof(pdata)/sizeof(uint8_t));
 
     #ifdef _DEBUG_COMUNICACION
       debug.print("[TCP_ST] Codigo de envio: ");
@@ -55,8 +55,38 @@ bool tcp_sent(uint8_t *pdata){
   * @return : none
   * Etiqueta debug : Todos los comentarios para depuración de esta función
                     estarán asociados a la etiqueta: "COMCL".
+  * ------------------------ *
+   Protocolo de comunicación
+  * ------------------------ *
+
+ |------------|--------------|---------------|---------|--------|-------------------|
+ | -- Start --|-- tcpcount --|-- ident_var --|-- Var --|- \...\-|-- Stop/Continue --|
+ |------------|--------------|---------------|---------|--------|-------------------|
+
+ Start (start) - uint8_t = ¿  || Byte de inicio de comunicación.
+ tcpcount      - uint8_t =    || Número de variables que serán recibidas.
+ ident_var     - *uint8_t =   || Identificador de la variable recibida.
+ Var           - *double      || Variable
+ Stop/Continue - uint8_t = #/?|| Byte de fin de comunicación o indicador de mantener la comunicación.
+
+  -- Ejemplo de transmision --
+  1º Transmision de una variable y no se finaliza comunicacion.
+  char psent2[200];
+  sprintf(psent2, "¿%"PRIu8"%"PRIu8"%f?",1,'!',3.141516)
+  char psent2[200];
+  sprintf(psent2, "¿%"PRIu8"%"PRIu8"%f#",1,'!',141516.3)
+
+
+u
   *******************************************************************************/
 void comunicacion_cliente(){
+
+  uint8_t psent[200];
+
+  union {
+  float float_value;
+  uint8_t byte[4];
+} data;
 
   // Se comprueba si las operaciones solicitadas ya han sido realizadas.
   if (CMD == '$' || !transmision_finalizada)
@@ -72,8 +102,10 @@ void comunicacion_cliente(){
       time0 = millis();
       #endif
 
-      uint8_t psent[1];
-      psent[0] = WACK;
+      psent[0] = TCP_START;
+      psent[1] = 1;
+      psent[2] = WACK;
+      psent[3] = TCP_STOP;
 
       if (tcp_sent(psent))
         registrado  = true;
@@ -106,10 +138,59 @@ void comunicacion_cliente(){
           debug.print("[COMCL] !Soy el servidor: ");
           debug.println(ESP.getChipId());
         #endif
-         char psent2[200];
-         sprintf(psent2, "!->Soy el servidor: %d, Tiempo: %llu \r\n", ESP.getChipId(),\
+         //char psent2[200];
+         //sprintf(psent2, "¿2Soy el servidor: %d, Tiempo: %llu \r\n", ESP.getChipId(),\
          ( get_rtc_time() / 10000000) / 100);
-         tcp_sent(reinterpret_cast<uint8_t*>(psent2));
+         //char psent2[200];
+/*         sprintf(psent, "¿%i%i%f?",1,'!',3.141516);
+
+         tcp_sent(reinterpret_cast<uint8_t*>(psent));
+*/
+         //sprintf(psent2, "¿2Soy el servidor:");
+
+         float p = 10.5;
+         data.float_value = p;
+         psent[0] = TCP_START;
+         psent[1] = 1;
+         psent[2] = 0x21;
+         Serial.print('A');
+         Serial.write(data.byte[0]);
+         Serial.write(data.byte[1]);
+         Serial.write(data.byte[2]);
+         Serial.write(data.byte[3]);
+         psent[3] = data.byte[0];
+         psent[4] = data.byte[1];
+         psent[5] = data.byte[2];
+         psent[6] = data.byte[3];
+         Serial.print('A');
+         psent[7] = TCP_STOP;
+
+
+
+        /* for (uint8_t i = 0; i < 4; i++)
+            psent[i+4] = data.byte[i];
+         //psent[7] = TCP_STOP;
+        */
+        // tcp_sent(psent);
+
+        int8_t info_tcp = -1;
+
+        transmision_finalizada = false;
+
+        while (!transmision_finalizada){
+
+          yield();
+
+          if (info_tcp != ESPCONN_OK)
+             info_tcp = espconn_send(esp_conn, psent , 8);
+
+          #ifdef _DEBUG_COMUNICACION
+            debug.print("[TCP_ST] Codigo de envio: ");
+            debug.println(info_tcp);
+          #endif
+
+        }
+
        break;
    }
 

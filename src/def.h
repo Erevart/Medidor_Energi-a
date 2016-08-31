@@ -18,9 +18,9 @@
 /* -------------------------------------------------------------------------------------------------------------*/
 
 /* Parametros de Debug */
-//#define _DEBUG_WIFI         // Muestra por puerto serie información relativa la configuración wifi.
-//#define _DEBUG_COMUNICACION // Muestra por puerto serie información relativa la comunicación TCP.
-#define _DEBUG_RTC          // Muestra el tiempo de funcionamiento del dispositivo desde la ultima sincronización.
+#define _DEBUG_WIFI         // Muestra por puerto serie información relativa la configuración wifi.
+#define _DEBUG_COMUNICACION // Muestra por puerto serie información relativa la comunicación TCP.
+//#define _DEBUG_RTC          // Muestra el tiempo de funcionamiento del dispositivo desde la ultima sincronización.
 //#define _DEBUG_RTC_TEST     // Muestras el test de comparación entre las variables de tiempo del dispositovo.
 //#define _DEBUG_ERROR      // Muestra los mensajes de error.
 //#define _DEBUG_TX         // Muestra la información que transmitiría al MCP.
@@ -71,6 +71,9 @@
 #define USUARIO_REGISTRADO 0xEE
 #define WACK 0xCC
 #define RTC_MAGIC 0x55aaaa55        // RTC_MAGIC
+#define TCP_START 0x40                  // Byte que indica el inicio de la trama de la comunicacion ESP8266 - ESP8266
+#define TCP_STOP  0x23                  // Byte que indica el fin de la trama de la comunicacion ESP8266 - ESP8266
+#define TCP_CONTINUE 0x3F               // Byte que indica que continue de la trama de la comunicacion ESP8266 - ESP8266
 
 /* Parametros comunicacion ESP8266 - MCP39F51X */
 #define MAX_INTENTOS 1           // Numero de intentos para establecer la comunicacion sino se ha tansmitido correctamente.
@@ -134,12 +137,12 @@ unsigned long previousMillis = 0;     // Variable que indica el instante de tiem
 unsigned long loop2_previousTime = 0; // Variable que indica el instante de tiempo en el que se ejecuto la loop2_
 
 /* Aún en pruebas */
-uint32_t temp = 0;
-uint32_t tension = 0;
-uint32_t corriente = 0;
-uint32_t frecuencia = 0;
+float temp = 0;
+float tension = 0;
+float corriente = 0;
+float frecuencia = 0;
 /* Aún en pruebas */
-uint32_t timecounter = 0;             // Variable que indica el numero de iteracciones del bucle principal.
+int timecounter = 0;             // Variable que indica el numero de iteracciones del bucle principal.
 
 int8_t estadoscan = false;
 
@@ -150,6 +153,7 @@ bool registrado = false;              // Indica si el dispositivo ha sido regist
 bool tcp_establecido = false;         // TCP establecido.
 bool tcp_desconectado = false;        // TCP desconectado.
 bool transmision_finalizada = true;   // Transmision de datos por TCP realizada.
-bool reset_wifi = false;              // Determina si la red wifi registrada en memoria es diferente a la escenada y por lo tanto
-                                      // es necesario confirmar el registro del dispositivo. Se supone que el dispositivo no procede
-                                      // no procede de un reset y por lo tanto no es necersario al confirmación de registro.
+bool reset_wifi = false;              // Determina si la red wifi registrada en memoria es diferente a la escenada y por
+                                      // lo tanto es necesario confirmar el registro del dispositivo. Se supone que
+                                      // el dispositivo no procede no procede de un reset y por lo tanto no es necersario
+                                      // al confirmación de registro.

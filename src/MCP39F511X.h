@@ -167,6 +167,7 @@ uint8_t _MCPwrite(uint16_t *reg, uint8_t *num_bytes, uint32_t *dato){
   frame[5] = MCP_WRITE;
   frame[6] = *num_bytes;
 
+  // Número de datos fijos 0x06
   for (uint8_t i = 0x07; i <= 0x06 + *num_bytes; i++){
     frame[i] = *dato >> ((*num_bytes) + 0x06 - i)*8;
   }
@@ -177,9 +178,9 @@ uint8_t _MCPwrite(uint16_t *reg, uint8_t *num_bytes, uint32_t *dato){
   for (uint8_t i = 0; i <= frame[1]-1; i++){
     uart.write(frame[i]);
     delay(1);
-#ifdef _DEBUBG_TX
-    debug.write(frame[i]);
-#endif
+    #ifdef _DEBUBG_TX
+      debug.write(frame[i]);
+    #endif
   }
 
   return checkACK();

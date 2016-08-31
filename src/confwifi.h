@@ -274,7 +274,7 @@ void isrsinc(){
 int8_t confirmar_conexion(){
 
   unsigned long time0;
-  uint8_t psent[1];
+  char psent[3];
 
   #ifdef _DEBUG_WIFI
     Serial.println("[CNF_CNX] Esperando conexión de un cliente.");
@@ -310,13 +310,15 @@ int8_t confirmar_conexion(){
   CMD = '$';
 
   // Se confirma la recepción de la validación de registro del dispositivo.
-  psent[0] = WACK;
+  psent[0] = TCP_START;
+  psent[1] = 1;
+  psent[2] = WACK;
 
   #ifdef _DEBUG_COMUNICACION
     time0 = millis();
   #endif
 
-  if (!tcp_sent(psent)){
+  if (!tcp_sent(reinterpret_cast<uint8_t*>(psent))){
     #ifdef _DEBUG_COMUNICACION
      debug.println("-----------------------------------------------");
      debug.print("[CNF_CNX] NO REGISTRADO. Tiempo requerido: ");
