@@ -72,7 +72,7 @@
           for(int i = 0; i < 15; i++){
             debug.print((char)config->ssid[i]);
           }
-          debug.println("\n[CONFW] PASSWORD");
+          debug.println("\n[SCAN] PASSWORD");
           for(int i = 0; i < 12; ++i){
             debug.print((char)config->password[i]);
           }
@@ -215,7 +215,7 @@ void reset_configwifi(void *pArg){
     os_free(timerrest);
 
     #ifdef _DEBUG_WIFI
-      debug.println("[RST_CONFW] Parametros de conexión borrados.");
+      debug.println("[RST_CONFW] Parametros de conexion borrados.");
       debug.println("[RST_CONFW] Ahora se realiza un reset global del dispositivo.");
     #endif
 
@@ -274,10 +274,10 @@ void isrsinc(){
 int8_t confirmar_conexion(){
 
   unsigned long time0;
-  char psent[3];
+  uint8_t psent[4];
 
   #ifdef _DEBUG_WIFI
-    Serial.println("[CNF_CNX] Esperando conexión de un cliente.");
+    Serial.println("[CNF_CNX] Esperando conexion de un cliente.");
   #endif
 
   // Se espera a establecer un canal de comunicacion TCP para iniciar el proceso
@@ -313,12 +313,13 @@ int8_t confirmar_conexion(){
   psent[0] = TCP_START;
   psent[1] = 1;
   psent[2] = WACK;
+  psent[2] = TCP_STOP;
 
   #ifdef _DEBUG_COMUNICACION
     time0 = millis();
   #endif
 
-  if (!tcp_sent(reinterpret_cast<uint8_t*>(psent))){
+  if (!tcp_sent(psent,4)){
     #ifdef _DEBUG_COMUNICACION
      debug.println("-----------------------------------------------");
      debug.print("[CNF_CNX] NO REGISTRADO. Tiempo requerido: ");

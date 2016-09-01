@@ -21,6 +21,11 @@ extern "C" {
 
 void setup() {
 
+  /*****************/
+  /* RTC timer     */
+  /*****************/
+  update_rtc_time(true);
+
   /**********************************/
   /*   Definicion Puerto I/O        */
   /**********************************/
@@ -137,7 +142,7 @@ void loop() {
      if (tcp_desconectado){
       #ifdef _DEBUG_COMUNICACION_CONEXION
         int8_t info_espconn = espconn_delete(esp_conn);
-        debug.println("TCP_D: Cierre del canal de comunicacion");
+        debug.println("[MAIN] Cierre del canal de comunicacion");
         debug.println(info_espconn);
       #else
         espconn_delete(esp_conn);

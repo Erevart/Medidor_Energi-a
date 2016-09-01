@@ -9,12 +9,13 @@
  * Función : tcp_sent
  * @brief  : Envia al cliente conectado por comunicación TCP los datos indicados.
  * @param  : pdata - Puntero al array de datos que se desea enviar
+ * @param  : length - Longitud del array de datos.
  * @return : true - El envio de los datos se ha realizado correctamente.
  * @return : false - El envio de los datos no se ha podido realizar.
  * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "TCP_ST".
  *******************************************************************************/
-bool tcp_sent(uint8_t *pdata){
+bool tcp_sent(uint8_t *pdata, uint16_t length){
 
   unsigned long time0;
   int8_t info_tcp = -1;
@@ -27,7 +28,7 @@ bool tcp_sent(uint8_t *pdata){
     yield();
 
     if (info_tcp != ESPCONN_OK)
-       info_tcp = espconn_send(esp_conn, pdata , sizeof(pdata)/sizeof(uint8_t));
+       info_tcp = espconn_send(esp_conn, pdata , length);
 
     #ifdef _DEBUG_COMUNICACION
       debug.print("[TCP_ST] Codigo de envio: ");
@@ -81,11 +82,15 @@ u
   *******************************************************************************/
 void comunicacion_cliente(){
 
-  uint8_t psent[200];
+  uint8_t *psent;
+
+  if ( ( psent = (uint8_t *) os_malloc( 1275 * sizeof(psent) ) ) == NULL)
+    return;
 
   union {
   float float_value;
-  uint8_t byte[4];
+  uint64_t  long_value;
+  uint8_t byte[8];
 } data;
 
   // Se comprueba si las operaciones solicitadas ya han sido realizadas.
@@ -107,7 +112,7 @@ void comunicacion_cliente(){
       psent[2] = WACK;
       psent[3] = TCP_STOP;
 
-      if (tcp_sent(psent))
+      if (tcp_sent(psent,4))
         registrado  = true;
       else{
         registrado = false;
@@ -144,55 +149,29 @@ void comunicacion_cliente(){
          //char psent2[200];
 /*         sprintf(psent, "¿%i%i%f?",1,'!',3.141516);
 
-         tcp_sent(reinterpret_cast<uint8_t*>(psent));
+         tcp_sent(reinterpret_cast<uint8_t*>(psent),SIZE(psent));
 */
          //sprintf(psent2, "¿2Soy el servidor:");
 
-         float p = 10.5;
-         data.float_value = p;
+         data.long_value = get_rtc_time();
+
+         Serial.print("Tiempo: ");
+         Serial.printLLNumber(data.long_value,10);
+
          psent[0] = TCP_START;
          psent[1] = 1;
          psent[2] = 0x21;
-         Serial.print('A');
-         Serial.write(data.byte[0]);
-         Serial.write(data.byte[1]);
-         Serial.write(data.byte[2]);
-         Serial.write(data.byte[3]);
-         psent[3] = data.byte[0];
-         psent[4] = data.byte[1];
-         psent[5] = data.byte[2];
-         psent[6] = data.byte[3];
-         Serial.print('A');
-         psent[7] = TCP_STOP;
+         for (uint8_t i = 0; i < 8; i++)
+            psent[i+3] = data.byte[i];
+         psent[11] = TCP_STOP;
 
+        tcp_sent(psent, 12);
 
-
-        /* for (uint8_t i = 0; i < 4; i++)
-            psent[i+4] = data.byte[i];
-         //psent[7] = TCP_STOP;
-        */
-        // tcp_sent(psent);
-
-        int8_t info_tcp = -1;
-
-        transmision_finalizada = false;
-
-        while (!transmision_finalizada){
-
-          yield();
-
-          if (info_tcp != ESPCONN_OK)
-             info_tcp = espconn_send(esp_conn, psent , 8);
-
-          #ifdef _DEBUG_COMUNICACION
-            debug.print("[TCP_ST] Codigo de envio: ");
-            debug.println(info_tcp);
-          #endif
-
-        }
 
        break;
    }
+
+   os_free(psent);
 
    // Se indica que la operación solicitada ya ha sido realizada.
    CMD = '$';

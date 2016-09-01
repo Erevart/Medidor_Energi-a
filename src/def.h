@@ -35,6 +35,7 @@
                         // mostrar los mensajes de debug.
 
 /* Macros */
+#define SIZE(x) (uint16_t) (sizeof(x)/sizeof(x[0]))
 
 /*********************************/
 /* Definicion Puertos (ESP82666) */
