@@ -24,7 +24,7 @@ void setup() {
   /*****************/
   /* RTC timer     */
   /*****************/
-  update_rtc_time(true);
+  update_rtc_time(false);
 
   /**********************************/
   /*   Definicion Puerto I/O        */
@@ -137,6 +137,12 @@ void loop() {
 
      get_rtc_time();
 
+   }
+
+   /**************************************
+     Frecuencia de Refresco:  1/4 Hz
+   *************************************/
+   if (timecounter % loop4 == 0){
      // Si el cliente se desconecta, se cierra el canal de comunicación y
      // se abre una nuevo canal de comunicación para futuras conexiones.
      if (tcp_desconectado){
@@ -149,12 +155,6 @@ void loop() {
       #endif
       servidor_tcp();
      }
-   }
-
-   /**************************************
-     Frecuencia de Refresco:  1/4 Hz
-   *************************************/
-   if (timecounter % loop4 == 0){
    }
 
 

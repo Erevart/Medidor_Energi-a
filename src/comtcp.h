@@ -60,25 +60,15 @@ bool tcp_sent(uint8_t *pdata, uint16_t length){
    Protocolo de comunicación
   * ------------------------ *
 
- |------------|--------------|---------------|---------|--------|-------------------|
- | -- Start --|-- tcpcount --|-- ident_var --|-- Var --|- \...\-|-- Stop/Continue --|
- |------------|--------------|---------------|---------|--------|-------------------|
+ |------------|--------------|---------------|---------|--------|----------|
+ | -- Start --|-- tcpcount --|-- ident_var --|-- Var --|- \...\-|-- Stop --|
+ |------------|--------------|---------------|---------|--------|----------|
 
  Start (start) - uint8_t = ¿  || Byte de inicio de comunicación.
  tcpcount      - uint8_t =    || Número de variables que serán recibidas.
  ident_var     - *uint8_t =   || Identificador de la variable recibida.
  Var           - *double      || Variable
- Stop/Continue - uint8_t = #/?|| Byte de fin de comunicación o indicador de mantener la comunicación.
-
-  -- Ejemplo de transmision --
-  1º Transmision de una variable y no se finaliza comunicacion.
-  char psent2[200];
-  sprintf(psent2, "¿%"PRIu8"%"PRIu8"%f?",1,'!',3.141516)
-  char psent2[200];
-  sprintf(psent2, "¿%"PRIu8"%"PRIu8"%f#",1,'!',141516.3)
-
-
-u
+ Stop          - uint8_t = #  || Byte de fin de comunicación.
   *******************************************************************************/
 void comunicacion_cliente(){
 
@@ -143,21 +133,9 @@ void comunicacion_cliente(){
           debug.print("[COMCL] !Soy el servidor: ");
           debug.println(ESP.getChipId());
         #endif
-         //char psent2[200];
-         //sprintf(psent2, "¿2Soy el servidor: %d, Tiempo: %llu \r\n", ESP.getChipId(),\
-         ( get_rtc_time() / 10000000) / 100);
-         //char psent2[200];
-/*         sprintf(psent, "¿%i%i%f?",1,'!',3.141516);
 
-         tcp_sent(reinterpret_cast<uint8_t*>(psent),SIZE(psent));
-*/
-         //sprintf(psent2, "¿2Soy el servidor:");
-
+        
          data.long_value = get_rtc_time();
-
-         Serial.print("Tiempo: ");
-         Serial.printLLNumber(data.long_value,10);
-
          psent[0] = TCP_START;
          psent[1] = 1;
          psent[2] = 0x21;
@@ -165,6 +143,7 @@ void comunicacion_cliente(){
             psent[i+3] = data.byte[i];
          psent[11] = TCP_STOP;
 
+        //sprintf(reinterpret_cast<char*>(psent),"!Soy el servidor: %d",ESP.getChipId());
         tcp_sent(psent, 12);
 
 

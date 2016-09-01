@@ -68,7 +68,7 @@
 
 /* Parametros Comunicacion ESP8266 - ESP8266 */
 #define TCP_TIEMPO_CONEXION 120     // Tiempo de inactividad, para cerrar la comunicación TCP.
-#define MAX_ESPWIFI 15000           // Tiempo de espera antes de considerar que la comunicacion wifi ha sido perdida.
+#define MAX_ESPWIFI 10000           // Tiempo de espera antes de considerar que la comunicacion wifi ha sido perdida.
 #define USUARIO_REGISTRADO 0xEE
 #define WACK 0xCC
 #define RTC_MAGIC 0x55aaaa55        // RTC_MAGIC
