@@ -73,9 +73,11 @@ bool tcp_sent(uint8_t *pdata, uint16_t length){
 void comunicacion_cliente(){
 
   uint8_t *psent;
-
-  if ( ( psent = (uint8_t *) os_malloc( 1275 * sizeof(psent) ) ) == NULL)
+  // MAX = 1275 para tcpcount = 255
+  if ( ( psent = (uint8_t *) os_malloc( 12 * sizeof(psent) ) ) == NULL){
+    CMD = '$';
     return;
+  }
 
   union {
   float float_value;
@@ -134,7 +136,7 @@ void comunicacion_cliente(){
           debug.println(ESP.getChipId());
         #endif
 
-        
+
          data.long_value = get_rtc_time();
          psent[0] = TCP_START;
          psent[1] = 1;
