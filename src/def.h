@@ -22,9 +22,9 @@
 //#define _DEBUG_COMUNICACION // Muestra por puerto serie información relativa la comunicación TCP.
 //#define _DEBUG_RTC          // Muestra el tiempo de funcionamiento del dispositivo desde la ultima sincronización.
 //#define _DEBUG_RTC_TEST     // Muestras el test de comparación entre las variables de tiempo del dispositovo.
-//#define _DEBUG_ERROR      // Muestra los mensajes de error.
-//#define _DEBUG_TX         // Muestra la información que transmitiría al MCP.
-//#define _DEBUG_RX         // Muestra la información que recibiría del MCP
+//#define _DEBUG_ERROR        // Muestra los mensajes de error.
+//#define _DEBUG_TX           // Muestra la información que transmitiría al MCP.
+//#define _DEBUG_RX           // Muestra la información que recibiría del MCP
 
 
 

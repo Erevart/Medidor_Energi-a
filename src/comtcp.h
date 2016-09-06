@@ -226,6 +226,8 @@ void tcp_server_recon_cb(void *arg, sint8 err){
  * @brief  : Callback cuando se recibe información del cliente. Permite leer la
              la trama de datos recibida e identificar la operación solicitada.
  * @param  : arg - puntero a la variable tipo espconn que determina la comunicación.
+ * @param  : tcp_data - puntero al array de datos recibidos.
+ * @param  : length - longitud del array de datos.
  * @return : none
  * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "TCP_RV_CB".
@@ -235,7 +237,9 @@ void tcp_server_recv_cb(void *arg, char *tcp_data, unsigned short length){
    digitalWrite(2, !digitalRead(2));
 
    #ifdef _DEBUG_COMUNICACION
-       debug.print("[TCP_RV_CB] Recepcion de datos. Información recibida: ");
+       debug.print("[TCP_RV_CB] Recepcion de datos. Numero de datos recibidos: ");
+       debug.println(length);
+       debug.print("[TCP_RV_CB] Información recibida: ");
        debug.println(tcp_data);
    #endif
 
@@ -264,6 +268,10 @@ void tcp_server_recv_cb(void *arg, char *tcp_data, unsigned short length){
              CMD = tcp_data[0];
          break;
    }
+
+    #ifdef _DEBUG_COMUNICACION
+        debug.println("[TCP_RV_CB] Fin recepción de datos");
+    #endif
 
 }
 

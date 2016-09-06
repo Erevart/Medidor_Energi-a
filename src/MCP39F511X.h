@@ -53,7 +53,7 @@
       BLAST_REGISTER
     };
 
-/* Prototipo de Funciones */
+/* Prototipo de Funciones
 void error(uint8_t code);
 uint8_t checkACK();
 uint8_t Getchecksum(uint8_t *frame);
@@ -65,6 +65,7 @@ void MCPsetap(uint16_t reg);
 void MCPsaveflash();
 void MCPeraseeprom();
 void MCPautogain(uint8_t parameter);
+*/
 
 /* Variables */
 
@@ -91,7 +92,7 @@ void error(uint8_t code){
     }
 
 #ifdef _DEBUG_ERROR
-  //  cliente.write(message);
+  
 #endif
 }
 
