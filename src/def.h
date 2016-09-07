@@ -107,7 +107,7 @@ void wifi_station_scan_done(void *arg, STATUS status);
 void configWifi();
 void reset_configwifi(void *pArg);
 void isrsinc();
-int8_t confirmar_conexion();
+int8_t check_connection();
 
 
 // MCP39F511X

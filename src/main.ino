@@ -71,7 +71,7 @@ void setup() {
   // la confirmación de conexion.
   if (reset_wifi)
   // Se comprueba que el usuario ha sido registrado en la red.
-    if (!confirmar_conexion()){
+    if (!check_connection()){
       reset_configwifi(NULL);
     }
 

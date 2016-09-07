@@ -9,7 +9,7 @@
   * @brief  : Realiza una escaneo de las redes inalambricas cercanas y se conecta a aquellas
                    cuyo nombre empiece por el prefijo "MCPESP_".
   * @param  : arg - puntero a la estrcutura de datos que indica las redes detectadas.
-  * @param  : status - variable que indica si la escaneo de redes ha sido realizado
+  * @param  : status - variable que indica si el escaneo de las redes ha sido realizado
   *            con éxito
   * @return : none
   * Etiqueta debug : Todos los comentarios para depuración de esta función
@@ -154,9 +154,6 @@ void configWifi(){
   wifi_station_connect();
   wifi_set_channel(0);
 
-  // Se inicia el servicio dhcp.
-  wifi_station_dhcpc_start();
-
   delay(2000);
 
   #ifdef _DEBUG_WIFI
@@ -186,8 +183,8 @@ void configWifi(){
 
 /******************************************************************************
  * Función : reset_configwifi
- * @brief  : Realiza la desconexión de la red inalambrica a la cual se encuentra
-            y borra la información correspondiente a ésta de la memoria flash.
+ * @brief  : Realiza la desconexión de la red inalámbrica a la cual se encuentra
+            conectada y borrar la información correspondiente a ésta de la memoria flash.
  * @param  : pArg - puntero que indica el timer que ha disparado la interrupción.
  * @return : none
  * Etiqueta debug : Todos los comentarios para depuración de esta función
@@ -263,7 +260,7 @@ void isrsinc(){
 }
 
 /******************************************************************************
- * Función : confirmar_conexion
+ * Función : check_connection
  * @brief  : Solicita el registro del dispositivo en la red selecionada.
  * @param  : none
  * @return : true - El dispositivo ha sido registrado correctamente.
@@ -271,7 +268,7 @@ void isrsinc(){
  * Etiqueta debug : Todos los comentarios para depuración de esta función
                    estarán asociados a la etiqueta: "CNF_CNX".
  *******************************************************************************/
-int8_t confirmar_conexion(){
+int8_t check_connection(){
 
   unsigned long time0;
   uint8_t psent[4];
