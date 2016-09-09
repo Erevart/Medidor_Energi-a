@@ -1,7 +1,7 @@
-<<<<<<< HEAD
 .pioenvs
 .clang_complete
 .gcc-flags.json
+<<<<<<< HEAD
 ./.pioenvs
 .pioenvs/
 app/bin/
@@ -68,7 +68,6 @@ avr-toolchain-*.zip
 /arduino-core/nbproject/private/
 /app/build/
 /arduino-core/build/
-<<<<<<< HEAD
 manifest.mf
 nbbuild.xml
 nbproject
@@ -81,7 +80,4 @@ nbproject
 .pioenvs/esp12e/firmware.bin
 .pioenvs/esp12e/firmware.elf
 .pioenvs/esp12e/src/tmp_ino_to.o
-
-manifest.mf
-nbbuild.xml
-nbproject
+.piolibdeps

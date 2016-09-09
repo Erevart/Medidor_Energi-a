@@ -1,7 +1,6 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
 #include <inttypes.h> // for the macros
 
 extern "C" {
@@ -44,7 +43,7 @@ void setup() {
   // Se verifica antes de comenzar la ejecucion
   // del programa que el chips se encuentra
   // conectado y listo para comunicarse
-//   chip_is_ready();
+  //   chip_is_ready();
 
   /*****************/
   /* Interrupción  */
@@ -124,9 +123,9 @@ void loop() {
      // que se ejecuta el contenido del loop2.
      loop2_previousTime = currentMillis;
 
-    //tension = MCPread(VOLTAGE_RMS,BVOLTAGE_RMS);
-    //corriente = 0.0001 * MCPread(CURRENT_RMS,BCURRENT_RMS);
-    //frecuencia = MCPread(LINE_FREQUENCY,LINE_FREQUENCY);
+    //tension = MCPread(ADDR[VOLTAGE_RMS],TYPE_DATA[VOLTAGE_RMS]);
+    //corriente = 0.0001 * MCPread(ADDR[CURRENT_RMS],TYPE_DATA[CURRENT_RMS]);
+    //frecuencia = MCPread(ADDR[LINE_FREQUENCY],TYPE_DATA[LINE_FREQUENCY]);
 
    }
 
@@ -156,7 +155,6 @@ void loop() {
       servidor_tcp();
      }
    }
-
 
    // La variable timecounter debe reiniciarse cuando se alcance
    // el numero de ciclos de las acciones de menor prioridad.

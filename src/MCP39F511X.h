@@ -14,10 +14,12 @@
 
 
  /* Instrucciones MCP39F511 & MCP39F511N  (ver Datasheet) */
+ // Bytes de control
  #define MCP_ID 0xA5
  #define ACK 0x06
  #define NACK 0x15
  #define CSFAIL 0x51
+ // Bytes de instruccion
  #define MCP_READ 0x4E
  #define MCP_WRITE 0x4D
  #define MCP_SETAP 0x41
@@ -32,26 +34,90 @@
  /*********************************/
  /* Definicion de registros */
  /*********************************/
- enum REGITRO{
-      VOLTAGE_RMS = 0x0006,
-      LINE_FREQUENCY = 0x0008,
-      ANALOG_INPUT_VOLTAGE = 0x000A,
-      POWER_FACTOR = 0x000C,
-      CURRENT_RMS = 0x000E,
-     // Ultimo registro
-     LAST_REGISTER
+// Array de datos
+const uint16_t ADDR[61] = {0x0000,0x0002,0x0004,0x0006,0x0008,0x000A,0x000C,0x000E,0x0012,
+   0x0016,0x001A,0x001E,0x0022,0x0026,0x002A,0x002E,0x0036,0x003E,0x0046,0x004E,
+   0x0056,0x005E,0x0066,0x006E,0x0070,0x0070,0x0074,0x0076,0x0078,0x007A,0x007C,
+   0x007E,0x0080,0x0084,0x0088,0x008C,0x0090,0x0094,0x0098,0x009A,0x009C,0x009E,
+   0x00A0,0x00A4,0x00A8,0x00AA,0x00AC,0x00AE,0x00B2,0x00B6,0x00BA,0x00BE,0x00C2,
+   0x00C6,0x00CA,0x00CE,0x00D0,0x00D2,0x00D6,0x00DA,0x00DE};
 
+const uint8_t TYPE_DATA[61] = {0x02,0x02,0x02,0x02,0x02,0x02,0x02,0x04,0x04,0x04,0x04,
+   0x04,0x04,0x04,0x04,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x02,0x02,0x02,
+   0x02,0x02,0x02,0x02,0x02,0X02,0x04,0x04,0x04,0x04,0x04,0x04,0x02,0x02,0x02,
+   0x02,0x04,0x04,0x02,0x02,0x02,0x04,0x04,0x04,0x04,0x04,0x04,0x04,0x04,0x02,
+   0x02,0x04,0x04,0x04,0x04};
+
+ // enumu
+ enum REGISTROS  {
+    INSTRUCTION_POINTER,
+    SYSTEM_STATUS,
+    SYSTEM_VERSION,
+    VOLTAGE_RMS,
+    LINE_FREQUENCY,
+    POWER_FACTOR1,
+    POWER_FACTOR2,
+    CURRENT_RMS1,
+    CURRENT_RMS2,
+    ACTIVE_POWER1,
+    ACTIVE_POWER2,
+    REACTIVE_POWER1,
+    REACTIVE_POWER2,
+    APPARENT_POWER1,
+    APPARENT_POWER2,
+    IMPORT_ENERGY_ACTIVE_COUNTER1,
+    IMPORT_ENERGY_ACTIVE_COUNTER2,
+    EXPORT_ENERGY_ACTIVE_COUNTER1,
+    EXPORT_ENERGY_ACTIVE_COUNTER2,
+    IMPORT_ENERGY_REACTIVE_COUNTER1,
+    IMPORT_ENERGY_REACTIVE_COUNTER2,
+    EXPORT_ENERGY_REACTIVE_COUNTER1,
+    EXPORT_ENERGY_REACTIVE_COUNTER2,
+    // Registro de calibración
+    CALIBRATION_REGISTERS_DELIMITER,
+    GAIN_CURRENT_RMS1,
+    GAIN_CURRENT_RMS2,
+    GAIN_VOLTAGE_RMS,
+    GAIN_ACTIVE_POWER1,
+    GAIN_ACTIVE_POWER2,
+    GAIN_REACTIVE_POWER1,
+    GAIN_REACTIVE_POWER2,
+    GAIN_LINE_FREQUENCY,
+    OFFSET_CURRENT_RMS1,
+    OFFSET_CURRENT_RMS2,
+    OFFSET_ACTIVE_POWER1,
+    OFFSET_ACTIVE_POWER2,
+    OFFSET_REACTIVE_POWER1,
+    OFFSET_REACTIVE_POWER2,
+    PHASE_COMPENSATION1,
+    PHASE_COMPENSATION2,
+    APPARENT_POWER_DIVISOR1,
+    APPARENT_POWER_DIVISOR2,
+    // Registros de configuración
+    SYSTEM_CONFIGURATION,
+    EVENT_CONFIGURATION,
+    ACCUMULATION_INTERVAL_PARAMETER,
+    CALIBRATION_VOLTAGE,
+    CALIBRATION_LINE_FREQUENCY,
+    RANGE1,
+    CALIBRATION_CURRENT1,
+    CALIBRATION_POWER_ACTIVE1,
+    CALIBRATION_POWER_REACTIVE1,
+    RANGE2,
+    CALIBRATION_CURRENT2,
+    CALIBRATION_POWER_ACTIVE2,
+    CALIBRATION_POWER_REACTIVE2,
+    VOLTAGE_SAG_LIMIT,
+    VOLTAGE_SURGE_LIMIT,
+    OVER_CURRENT1_LIMIT,
+    OVER_CURRENT2_LIMIT,
+    OVER_POWER1_LIMIT,
+    OVER_POWER2_LIMIT,
+   // Ultimo registro
+   LAST_REGISTER
  };
 
- enum BITS_REGITRO{
-      BVOLTAGE_RMS = 0X02,
-      BLINE_FREQUENCY = 0x02,
-      BANALOG_INPUT_VOLTAGE = 0x02,
-      BPOWER_FACTOR = 0x02,
-      BCURRENT_RMS = 0x02,
-      // Ultimo registro
-      BLAST_REGISTER
-    };
+
 
 /* Prototipo de Funciones
 void error(uint8_t code);
@@ -67,8 +133,6 @@ void MCPeraseeprom();
 void MCPautogain(uint8_t parameter);
 */
 
-/* Variables */
-
 
 /*
 
@@ -76,43 +140,56 @@ void MCPautogain(uint8_t parameter);
 
  */
 
-/* void error(uint8_t code)
-Funcion que avisa e indica del error ocurrido */
+
+/******************************************************************************
+ * Función : error
+ * @brief  : Avisa e indica del error producido durante la comunicación
+ * @param  : code - identificador del error producido.
+ * @return : none
+ * Etiqueta debug : Todos los comentarios para depuración de esta función
+                   estarán asociados a la etiqueta: "ERROR".
+ *******************************************************************************/
 void error(uint8_t code){
 
-    String message = "No se ha producido ningun error.";
+    String err = "[ERROR] No se ha producido ningun error.";
 
     digitalWrite(LED_BUILTIN,!digitalRead(LED_BUILTIN));
 
     switch (code){
-      case NOCOMUNICACION: /*debug.println(*/message="Error, no hay comunicacion. No se recibe respuesta por parte del receptor.";                  break;
-      case CHECKSUMERR:    /*debug.println(*/message="Error, la informacion recibida no es correcta. (Fallo checksum)";                             break;
-      case ENACK:          /*debug.println(*/message="Error, se ha recibido un NACK en la confirmación de la respuesta. (Posible comando incorrecto)"; break;
-      case ECSFAIL:        /*debug.println(*/message="Error, se ha recibido un CSFAIL en la confirmación de la respuesta. (Comprobar checksum)"; break;
+      case NOCOMUNICACION: err ="[ERROR] no hay comunicacion. No se recibe respuesta por parte del receptor.";                  break;
+      case CHECKSUMERR:    err ="[ERROR] la informacion recibida no es correcta. (Fallo checksum)";                             break;
+      case ENACK:          err ="[ERROR] se ha recibido un NACK en la confirmación de la respuesta. (Posible comando incorrecto)"; break;
+      case ECSFAIL:        err ="[ERROR] se ha recibido un CSFAIL en la confirmación de la respuesta. (Comprobar checksum)"; break;
     }
 
 #ifdef _DEBUG_ERROR
-  
+    debug.println(err);
 #endif
 }
 
-/* void MCPwrite(register,num_bytes,dato)
-  Permite comprobar si se recibe confirmación de recepción de los
-  datos enviados al MCP */
+/******************************************************************************
+ * Función : checkACK
+ * @brief  : Comprueba la confirmación de la recepción de los datos por parte del
+ *           otro lado de la comunicación.
+ * @param  : none
+ * @return : NACK - No se recibe respuesta por parte del otro dispositivo,
+ *                  si este comunica un fallo en la comunicación o indica NACK
+ * @return : ACK - La recepsión ha sido confirmada correctamnte.
+ *******************************************************************************/
 uint8_t checkACK(){
 
   uint8_t check;
 
-  // Se espera a byte de confirmación de recepción.
+  // Se espera el byte de confirmación de recepción.
   // Si transcurre un periodo superior a 500ms se considera que la comunicacion se ha perdido o nunca
   // se estableció.
   unsigned long prevtime = millis();
   while (!(uart.available()>= 1))
     if ((millis()-prevtime)>= 1000){
       // Informar de error en la comunicacion.
-#ifdef _DEBUG_ERROR
+    #ifdef _DEBUG_ERROR
       error(NOCOMUNICACION);
-#endif
+    #endif
       return NACK;
     }
 
@@ -120,17 +197,17 @@ uint8_t checkACK(){
 
   if (check == NACK){
 
-#ifdef _DEBUG_ERROR
-    error(ENACK);
-#endif
+    #ifdef _DEBUG_ERROR
+      error(ENACK);
+    #endif
 
     return NACK;
   }
   else if(check == CSFAIL){
 
-#ifdef _DEBUG_ERROR
-    error(ECSFAIL);
-#endif
+    #ifdef _DEBUG_ERROR
+      error(ECSFAIL);
+    #endif
 
     return NACK;
   }
@@ -138,9 +215,13 @@ uint8_t checkACK(){
   return check;
 }
 
-/* uint8_t Getchecksum(*frame)
-  Devuelve el código de verifación de trama según las indicaciones
-  del fabricante */
+/******************************************************************************
+ * Función : Getchecksum
+ * @brief  : Devuelve el código de verificación de trama según las indicaciones
+ *             del fabricante
+ * @param  : frame - puntero al array que contiene la trama de datos.
+ * @return : devuelve el checsum correspondiente.
+ *******************************************************************************/
 uint8_t Getchecksum(uint8_t *frame){
 
   uint16_t checksum = 0;
@@ -152,8 +233,14 @@ uint8_t Getchecksum(uint8_t *frame){
 
 }
 
-/* void MCPwrite(reg,num_bytes,dato)
-  Permite escribir a partir del registro indicado los bytes indicados. */
+/******************************************************************************
+ * Función : _MCPwrite
+ * @brief  : Escribe a partir del registro indicado el número de bytes indicados.
+ * @param  : reg - puntero a la variable que indica el registro a escribir.
+ * @param  : num_bytes - puntero a la variable que indica el número de bytes a escribir.
+ * @param  : dato - puntero al array de datos a enviar.
+ * @return : devuelve si la operación de escritura se ha realizado correctamente.
+ *******************************************************************************/
 uint8_t _MCPwrite(uint16_t *reg, uint8_t *num_bytes, uint32_t *dato){
 
   uint8_t frame[8+*num_bytes];
@@ -187,9 +274,16 @@ uint8_t _MCPwrite(uint16_t *reg, uint8_t *num_bytes, uint32_t *dato){
   return checkACK();
 }
 
-/* void MCPwrite(reg,num_bytes,dato)
-  Realiza la escritura indicda en el mcp y asegura que esta se ha realizado
-  adecuadamente */
+  /******************************************************************************
+   * Función : MCPwrite
+   * @brief  : Escribe a partir del registro indicado el número de bytes indicados,
+   *            asegurando que ésta se ha realizado adecuadamente. En caso de producirse un error
+   *            reintenta realizar la operación un número máximo de MAX_INTENTOS.
+   * @param  : reg - variable que indica el registro a escribir.
+   * @param  : num_bytes - variable que indica el número de bytes a escribir.
+   * @param  : dato - array de datos a enviar.
+   * @return : devuelve si la operación de escritura se ha realizado correctamente.
+   *******************************************************************************/
 void MCPwrite(uint16_t reg, uint8_t num_bytes, uint32_t dato){
 
   uint8_t check = NACK;     // Variable de comprobaciación para saber si la escrtura
@@ -205,9 +299,13 @@ void MCPwrite(uint16_t reg, uint8_t num_bytes, uint32_t dato){
   return;
 }
 
-/* uint32_t mcp_read(reg,num_bytes)
-  Permite leer a partir del registro indicado el
-  número de bytes solicitados. */
+/******************************************************************************
+ * Función : _MCPread
+ * @brief  : Lee a partir del registro indicado el número de bytes solicitados.
+ * @param  : reg - puntero a la variable que indica el registro a escribir.
+ * @param  : num_bytes - puntero a la variable que indica el número de bytes a escribir.
+ * @return : devuelve una uint32_t con la información almacenada en la posición indicada.
+ *******************************************************************************/
 uint32_t _MCPread(uint16_t *reg, uint8_t *num_bytes){
 
   uint8_t frame[8];
@@ -260,13 +358,20 @@ uint32_t _MCPread(uint16_t *reg, uint8_t *num_bytes){
   return -1;
 }
 
-/* void MCPwrite(reg,num_bytes,dato)
-  Realiza la lectura indicda en el mcp y asegura que esta se ha realizado
-  adecuadamente */
+/******************************************************************************
+ * Función : MCPread
+ * @brief  : Lee a partir del registro indicado el número de bytes solicitados,
+ *           asegurando que ésta se ha realizado adecuadamente. En caso de producirse un error
+ *           reintenta realizar la operación un número máximo de MAX_INTENTOS.
+ * @param  : reg - puntero a la variable que indica el registro a escribir.
+ * @param  : num_bytes - puntero a la variable que indica el número de bytes a escribir.
+ * @return : devuelve una uint32_t con la información almacenada en la posición indicada.
+ *******************************************************************************/
 uint32_t MCPread(uint16_t reg, uint8_t num_bytes){
 
-  uint32_t check = NACK;     // Variable de comprobaciación para saber si la escrtura
-                          // se ha realizado correctamente.
+  uint32_t check = NACK;  // Variable de comprobaciación para saber si la escrtura
+                          // se ha realizado correctamente. Al mismo tiempo, es la
+                          // variable que contiene la información leida del MCP.
   uint8_t intentos = 0;   // Varible que indica el número de veces que se realiza
                           // la escritura.
 
@@ -279,10 +384,12 @@ uint32_t MCPread(uint16_t reg, uint8_t num_bytes){
 
 }
 
-/**
- * Modifica la dirección del puntero del MCP39F511X al registro indicado.
- * @param reg direccion de 16 bit a la cual se desea apuntar el puntero del MCP
- **/
+ /******************************************************************************
+  * Función : MCPsetap
+  * @brief  : Modifica la dirección del puntero del MCP39F511X a la posición indicada.
+  * @param  : reg - posición de memoria a la que se desea ubicar el puntero.
+  * @return : none
+  *******************************************************************************/
 void MCPsetap(uint16_t reg){
 
   uint8_t frame[6];
@@ -307,9 +414,12 @@ void MCPsetap(uint16_t reg){
   return;
 }
 
-/**
- * Guarda las modoficaciones realizadas en el MCP39F511X en la memoria flash
- **/
+ /******************************************************************************
+  * Función : MCPsaveflash
+  * @brief  : Guarda las modificaciones realizadas en el MCP39F511X en su memoria flash
+  * @param  : none
+  * @return : none
+  *******************************************************************************/
 void MCPsaveflash(){
 
   uint8_t frame[4];
@@ -332,9 +442,12 @@ void MCPsaveflash(){
   return;
 }
 
-/**
- * Borra la memoria eeprom del MCP39F511X
- **/
+ /******************************************************************************
+  * Función : MCPeraseeprom
+  * @brief  : Borra la memoria eeprom del MCP39F511X.
+  * @param  : none
+  * @return : none
+  *******************************************************************************/
 void MCPeraseeprom(){
 
   uint8_t frame[4];
@@ -357,10 +470,12 @@ void MCPeraseeprom(){
   return;
 }
 
-/**
- * Indica al MCP39F511X realizar un autocalibrado de la ganacia,
- * ganancia reactiva o frecuencia
-**/
+/******************************************************************************
+ * Función : MCPautogain
+ * @brief  : Indica al MCP39F511X realizar un autocalibrado de la ganancia de la magnitud indicado.
+ * @param  : parameter, magnitud sobre la cual se realizará el autocalibrado (Corriente, Tensión o Potencia activa)
+ * @return : none
+ *******************************************************************************/
 void MCPautogain(uint8_t parameter){
 
   uint8_t frame[4];
@@ -382,8 +497,20 @@ void MCPautogain(uint8_t parameter){
   return;
 }
 
-/* void MCPwriteeprom(*data)
-  Guarda en la memoria eeprom del MCP39F511X los datos indicados*/
 
-/* void MCPreadeprom(*data)
-  Lee de la memoria eeprom del MCP39F511X */
+/******************************************************************************
+ * Función : MCPwriteeprom(*data)
+ * @brief  : Guarda en la memoria eeprom del MCP39F511X los datos indicados.
+ * @param  : data, puntero al array de datos que se desea guardar en la EEPRom del MCP39F511X
+ * @return : none
+ *******************************************************************************/
+ /* PENDIENTE DE IMPLEMENTAR */
+
+
+/******************************************************************************
+ * Función : MCPreadeprom
+ * @brief  : Lee de la memoria eeprom del MCP39F511X
+ * @param  : data, puntero al array de datos donde se guardarán la información leída
+ * @return : none
+ *******************************************************************************/
+ /* PENDIENTE DE IMPLEMENTAR */

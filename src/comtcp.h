@@ -138,12 +138,13 @@ void comunicacion_cliente(){
 
 
          data.long_value = get_rtc_time();
-         psent[0] = TCP_START;
-         psent[1] = 1;
-         psent[2] = 0x21;
+         // Ver Protocolo de comunicación
+         psent[0] = TCP_START;  // Byte start
+         psent[1] = 1;    // Número de datos a enviar
+         psent[2] = 0x21; // Identificador: caracter '!'
          for (uint8_t i = 0; i < 8; i++)
-            psent[i+3] = data.byte[i];
-         psent[11] = TCP_STOP;
+            psent[i+3] = data.byte[i];  // Data long - 8 byte
+         psent[11] = TCP_STOP;  // Byte stop
 
         //sprintf(reinterpret_cast<char*>(psent),"!Soy el servidor: %d",ESP.getChipId());
         tcp_sent(psent, 12);
