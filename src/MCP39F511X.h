@@ -407,7 +407,14 @@ void MCPsetap(uint16_t reg){
   frame[frame[1]-1] = Getchecksum(frame);
 
   do {
-    uart.write(frame,frame[1]);
+    //uart.write(frame,frame[1]);
+    for (uint8_t i = 0; i <= frame[1]-1; i++){
+      uart.write(frame[i]);
+      delay(1);
+      #ifdef _DEBUBG_TX
+        debug.write(frame[i]);
+      #endif
+    }
     intentos++;
   } while (checkACK() == NACK && intentos <= MAX_INTENTOS);
 
@@ -435,7 +442,14 @@ void MCPsaveflash(){
   frame[3] = 0xFC;
 
   do {
-    uart.write(frame,frame[1]);
+    //uart.write(frame,frame[1]);
+    for (uint8_t i = 0; i <= frame[1]-1; i++){
+      uart.write(frame[i]);
+      delay(1);
+      #ifdef _DEBUBG_TX
+        debug.write(frame[i]);
+      #endif
+    }
     intentos++;
   } while (checkACK() == NACK && intentos <= MAX_INTENTOS);
 
@@ -463,7 +477,14 @@ void MCPeraseeprom(){
   frame[3] = 0xF8;
 
   do {
-    uart.write(frame,frame[1]);
+    //uart.write(frame,frame[1]);
+    for (uint8_t i = 0; i <= frame[1]-1; i++){
+      uart.write(frame[i]);
+      delay(1);
+      #ifdef _DEBUBG_TX
+        debug.write(frame[i]);
+      #endif
+    }
     intentos++;
   } while (checkACK() == NACK && intentos <= MAX_INTENTOS);
 
@@ -490,13 +511,49 @@ void MCPautogain(uint8_t parameter){
   frame[frame[1]-1] = Getchecksum(frame);
 
   do {
-    uart.write(frame,frame[1]);
+  //  uart.write(frame,frame[1]);
+    for (uint8_t i = 0; i <= frame[1]-1; i++){
+      uart.write(frame[i]);
+      delay(1);
+      #ifdef _DEBUBG_TX
+        debug.write(frame[i]);
+      #endif
+    }
     intentos++;
   } while (checkACK() == NACK && intentos <= MAX_INTENTOS);
 
   return;
 }
 
+/******************************************************************************
+ * Función : isReadyMCP39F511N
+ * @brief  : Comprueba si el MCP39F511X se encuentra conectado y la comunicación
+ *            se establece correctamente.
+ * @param  : none
+ * @return : none
+ *******************************************************************************/
+isReadyMCP39F511N(){
+
+  uint8_t frame[4];
+  uint8_t intentos = 0;   // Varible que indica el número de veces que se realiza
+                          // la escritura.
+
+  //  Se registra la trama de datos que se desea enviar.
+  frame[0] = =0x5A;
+  frame[1] = 0x03; // El número de bytes para esta funcion es fijo.
+  frame[frame[1]-1] = Getchecksum(frame);
+
+  for (uint8_t i = 0; i <= frame[1]-1; i++){
+    uart.write(frame[i]);
+    delay(1);
+    #ifdef _DEBUBG_TX
+      debug.write(frame[i]);
+    #endif
+  }
+
+  return (checkACK() == NACK);
+
+}
 
 /******************************************************************************
  * Función : MCPwriteeprom(*data)

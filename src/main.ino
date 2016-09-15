@@ -1,14 +1,14 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <inttypes.h> // for the macros
+#include <inttypes.h>
 
 extern "C" {
-#include <user_interface.h>
-#include <espconn.h>
-#include <mem.h>
-#include <ets_sys.h>
-#include <osapi.h>
+  #include <user_interface.h>
+  #include <espconn.h>
+  #include <mem.h>
+  #include <ets_sys.h>
+  #include <osapi.h>
 }
 
 #include <def.h>
@@ -43,36 +43,36 @@ void setup() {
   // Se verifica antes de comenzar la ejecucion
   // del programa que el chips se encuentra
   // conectado y listo para comunicarse
-  //   chip_is_ready();
-
+  /*  if (!isReadyMCP39F511N()){
+      digitalWrite(2,HIGH);
+      delay(2000);
+      system_restart();
+    }
+  */  
   /*****************/
   /* Interrupción  */
   /*****************/
   attachInterrupt(GPIO_SINC,isrsinc,FALLING);
-
-  /*****************/
-  /* RTC timer     */
-  /*****************/
-  update_rtc_time(true);
 
   /******************************/
   /*   Configuración Wifi       */
   /******************************/
   configWifi();
 
-  // Inicializacion servidor TCP
-  servidor_tcp();
-
-
-  delay(500);
-
   // En el supuesto de conectarse a una red ya identificada no se exige
   // la confirmación de conexion.
   if (reset_wifi)
-  // Se comprueba que el usuario ha sido registrado en la red.
+    // Se comprueba que el usuario ha sido registrado en la red.
+    // en caso contrario se borran los parametros de conexión.
     if (!check_connection()){
       reset_configwifi(NULL);
     }
+
+
+  /******************************/
+  /*  Servidor TCP      */
+  /******************************/
+  servidor_tcp();
 
   delay(2000);
 }
