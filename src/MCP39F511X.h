@@ -259,6 +259,7 @@ uint8_t _MCPwrite(uint16_t *reg, uint8_t *num_bytes, uint32_t *dato){
   frame[6] = *num_bytes;
 
   // Número de datos fijos 0x06
+  // BIG ENDIAN
   for (uint8_t i = 0x07; i <= 0x06 + *num_bytes; i++){
     frame[i] = *dato >> ((*num_bytes) + 0x06 - i)*8;
   }
@@ -341,15 +342,27 @@ uint32_t _MCPread(uint16_t *reg, uint8_t *num_bytes){
   }
 
   // Se realiza la lectura de los datos recibidos
-  for (uint8_t i = (frame[1]-3); i >= 1; i--){
-    //   [2+(frame[1]-3)-i] -- El -3 es debio a que ya se han leído los 2 primeros valores recibidos.
-    frame[frame[1]-1-i] = uart.read();
-    readregister = readregister | (frame[frame[1]-1-i] << (i-1)*8); // (i-1) El -1 es debido al checksum
-    delay(1);
-#ifdef _DEBUBG_RX
-    debug.write(readregister);
-#endif
-  }
+  #ifdef _BIG_ENDIAN
+    for (uint8_t i = 0; i < (frame[1]-3); i++){
+      // El -3 es debio a que ya se han leido los 2 primeros valores, y el checksum no se va a leer.
+      frame[2+i] = uart.read();
+      readregister = readregister | (frame[2+i] << (frame[1]-4-i)*8); // (frame[1]-3-(i+1))
+      delay(1);
+      #ifdef _DEBUBG_RX
+          debug.write(readregister);
+      #endif
+    }
+  #else
+    for (uint8_t i = 0; i < (frame[1]-3); i++){
+      // El -3 es debio a que ya se han leido los 2 primeros valores, y el checksum no se va a leer.
+      frame[2+i] = uart.read();
+      readregister = readregister | (frame[2+i] << i*8); //
+      delay(1);
+      #ifdef _DEBUBG_RX
+          debug.write(readregister);
+      #endif
+    }
+  #endif
 
   if (Getchecksum(frame) == uart.read())
     return readregister;
