@@ -87,17 +87,17 @@ void update_rtc_time(bool reset){
 
   #ifdef _DEBUG_RTC
     debug.println("[URTC]-----------------------------");
-    debug.print("[URTC] RTC precision: ");
-    debug.printLLNumber(rtcTime.timeAcc,10);
+/*    debug.print("[URTC] RTC precision: ");
+    debug.print((uint32_t)(rtcTime.timeAcc));
     debug.println();
     debug.println("[URTC] Tiempo encendido: ");
     debug.print("[URTC] - ");
-    debug.printLLNumber( rtcTime.timeAcc / 1000,10);
+    debug.print( (uint32_t) (rtcTime.timeAcc / 1000) );
     debug.println(" us");
-    debug.print("[URTC] - ");
-    debug.printLLNumber((rtcTime.timeAcc / 10000000) / 100,10);
+*/    debug.print("[URTC] - ");
+    debug.print((uint32_t) (rtcTime.timeAcc / 10000000) / 100);
     debug.print(".");
-    debug.printLLNumber( (rtcTime.timeAcc / 10000000) % 100,10);
+    debug.print( (uint32_t) (rtcTime.timeAcc / 10000000) % 100);
     debug.println(" s");
     debug.println("[URTC]-----------------------------");
   #endif

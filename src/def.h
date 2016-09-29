@@ -20,9 +20,9 @@
 /* -------------------------------------------------------------------------------------------------------------*/
 
 /* Parametros de Debug */
-//#define _DEBUG_WIFI         // Muestra por puerto serie información relativa la configuración wifi.
-//#define _DEBUG_COMUNICACION // Muestra por puerto serie información relativa la comunicación TCP.
-//#define _DEBUG_RTC          // Muestra el tiempo de funcionamiento del dispositivo desde la ultima sincronización.
+#define _DEBUG_WIFI         // Muestra por puerto serie información relativa la configuración wifi.
+#define _DEBUG_COMUNICACION // Muestra por puerto serie información relativa la comunicación TCP.
+#define _DEBUG_RTC          // Muestra el tiempo de funcionamiento del dispositivo desde la ultima sincronización.
 //#define _DEBUG_RTC_TEST     // Muestras el test de comparación entre las variables de tiempo del dispositovo.
 //#define _DEBUG_ERROR        // Muestra los mensajes de error.
 //#define _DEBUG_TX           // Muestra la información que transmitiría al MCP.
@@ -61,6 +61,7 @@
 #define loop2       4     // Loop de 40 ms
 #define loop3       100   // Loop de 1 s
 #define loop4       300   // Loop de 3 s
+#define loop5       2000  // Loop de 30 s
 
 /* Parametros Wifi */
 #define PRE_SSID "MCPESP_"          // Prefijo de la red a buscar.
@@ -145,7 +146,7 @@ float tension = 0;
 float corriente = 0;
 float frecuencia = 0;
 /* Aún en pruebas */
-int timecounter = 0;             // Variable que indica el numero de iteracciones del bucle principal.
+int timecounter = 1;             // Variable que indica el numero de iteracciones del bucle principal.
 
 int8_t estadoscan = false;
 

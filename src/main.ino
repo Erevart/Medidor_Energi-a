@@ -20,6 +20,19 @@ extern "C" {
 
 void setup() {
 
+  /******************************/
+  /*   Configuración UART       */
+  /******************************/
+  Serial.begin(115200);
+
+// if we woke from deep sleep, do a full reset
+// this is needed because http gets from deep sleep are not properly returned.
+// test to see if this is fixed in future esp8266 libraries
+
+if ((*rinfo).reason == REASON_DEEP_SLEEP_AWAKE) {
+  Serial.println("Woke from deep sleep, performing full reset") ;
+  ESP.restart();
+}
   /*****************/
   /* RTC timer     */
   /*****************/
@@ -48,7 +61,7 @@ void setup() {
       delay(2000);
       system_restart();
     }
-  */  
+  */
   /*****************/
   /* Interrupción  */
   /*****************/
@@ -61,12 +74,13 @@ void setup() {
 
   // En el supuesto de conectarse a una red ya identificada no se exige
   // la confirmación de conexion.
-  if (reset_wifi)
+//  if (reset_wifi)
     // Se comprueba que el usuario ha sido registrado en la red.
     // en caso contrario se borran los parametros de conexión.
-    if (!check_connection()){
-      reset_configwifi(NULL);
-    }
+//    if (!check_connection()){
+//      reset_configwifi(NULL);
+//      delay(2000);
+//    }
 
 
   /******************************/
@@ -74,7 +88,19 @@ void setup() {
   /******************************/
   servidor_tcp();
 
+
+
   delay(2000);
+}
+
+bool sleeping = false;
+void fpm_wakup_cb_func1(void)
+{
+  debug.println("[MAIN] Se despierta");
+   wifi_fpm_close();   //disable sleep function
+  // sleeping = false;
+  // wifi_set_opmode(STATION_MODE);      //set wifi mode to station mode
+  // wifi_station_connect();         //connect ap
 }
 
 void loop() {
@@ -102,7 +128,7 @@ void loop() {
      Frecuencia de Refresco: 25 Hz
    *************************************/
    if (timecounter % loop2 == 0){
-     digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+     digitalWrite(2, !digitalRead(2));
 
     // MCPwrite(0x007A,0x04,0x00002000);
     //temp = MCPread(0x007E,0x04);
@@ -156,9 +182,30 @@ void loop() {
      }
    }
 
+   /**************************************
+     Frecuencia de Refresco:  1/30 Hz
+   *************************************/
+   if (timecounter % (loop5) == 0 && !sleeping){
+    debug.println("[MAIN] Se duerme");
+  /*    wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);      //set force sleep type, clsoe rf&cpu
+      wifi_fpm_open();            //enable force sleep fucntion
+      wifi_fpm_set_wakeup_cb(fpm_wakup_cb_func1);   //Set fpm wakeup callback function
+      int8_t err = wifi_fpm_do_sleep(20*1000*1000);         // do sleep
+      yield();
+      delay(10);
+      Serial.print("Error: ");
+      Serial.println(err);
+    */   yield();
+      delay(100);
+      ESP.deepSleep(20*1000*1000);
+      yield();
+      sleeping = true;
+
+   }
+
    // La variable timecounter debe reiniciarse cuando se alcance
    // el numero de ciclos de las acciones de menor prioridad.
-   if (timecounter == 1200)
+   if (timecounter == 12000)
      timecounter = 0;
    else
      timecounter++;
