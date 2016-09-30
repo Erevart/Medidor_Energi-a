@@ -61,7 +61,7 @@
 #define loop2       4     // Loop de 40 ms
 #define loop3       100   // Loop de 1 s
 #define loop4       300   // Loop de 3 s
-#define loop5       2000  // Loop de 30 s
+#define loop5       2000  // Loop de 20 s
 
 /* Parametros Wifi */
 #define PRE_SSID "MCPESP_"          // Prefijo de la red a buscar.

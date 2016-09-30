@@ -25,14 +25,6 @@ void setup() {
   /******************************/
   Serial.begin(115200);
 
-// if we woke from deep sleep, do a full reset
-// this is needed because http gets from deep sleep are not properly returned.
-// test to see if this is fixed in future esp8266 libraries
-
-if ((*rinfo).reason == REASON_DEEP_SLEEP_AWAKE) {
-  Serial.println("Woke from deep sleep, performing full reset") ;
-  ESP.restart();
-}
   /*****************/
   /* RTC timer     */
   /*****************/
@@ -43,6 +35,8 @@ if ((*rinfo).reason == REASON_DEEP_SLEEP_AWAKE) {
   /**********************************/
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(2, OUTPUT);
+  digitalWrite(16,HIGH);
+  pinMode(16, OUTPUT);
 
   /******************************/
   /*   Configuración UART       */
@@ -103,8 +97,22 @@ void fpm_wakup_cb_func1(void)
   // wifi_station_connect();         //connect ap
 }
 
+uint8_t p[] = {1,2,3};
+
 void loop() {
 
+
+//temp = MCPread(0x007E,0x04);
+
+p[1]=p[1]+1;
+while (!tcp_sent(p,3))
+  yield();
+
+delay(100);
+
+
+ESP.deepSleep(10*1000*1000);
+/*
  // Se actualiza la variable tiempo, para conocer el tiempo transcurrido
  currentMillis = millis();
 
@@ -116,7 +124,7 @@ void loop() {
 
    /**************************************
      Frecuencia de Refresco: 50 Hz
-   *************************************/
+   *************************************
    if (timecounter % loop1 == 0){
      // Si un cliente ha establecido una comunicación se envian los datos solicitados.
      if (tcp_establecido)
@@ -126,7 +134,7 @@ void loop() {
 
    /**************************************
      Frecuencia de Refresco: 25 Hz
-   *************************************/
+   *************************************
    if (timecounter % loop2 == 0){
      digitalWrite(2, !digitalRead(2));
 
@@ -141,7 +149,7 @@ void loop() {
     //  MCPwrite(0x007E,0x04, 0x00400000);//0x00400000
       digitalWrite(2,LOW);
     }
-    */
+    *
 
    }
    else if ( (currentMillis - loop2_previousTime) >= 40){
@@ -157,7 +165,7 @@ void loop() {
 
    /**************************************
      Frecuencia de Refresco:  1 Hz
-   *************************************/
+   *************************************
    if (timecounter % loop3 == 0){
 
      get_rtc_time();
@@ -166,7 +174,7 @@ void loop() {
 
    /**************************************
      Frecuencia de Refresco:  1/4 Hz
-   *************************************/
+   *************************************
    if (timecounter % loop4 == 0){
      // Si el cliente se desconecta, se cierra el canal de comunicación y
      // se abre una nuevo canal de comunicación para futuras conexiones.
@@ -184,7 +192,7 @@ void loop() {
 
    /**************************************
      Frecuencia de Refresco:  1/30 Hz
-   *************************************/
+   *************************************
    if (timecounter % (loop5) == 0 && !sleeping){
     debug.println("[MAIN] Se duerme");
   /*    wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);      //set force sleep type, clsoe rf&cpu
@@ -195,11 +203,7 @@ void loop() {
       delay(10);
       Serial.print("Error: ");
       Serial.println(err);
-    */   yield();
-      delay(100);
-      ESP.deepSleep(20*1000*1000);
-      yield();
-      sleeping = true;
+    /ESP.deepSleep(20*1000*1000);
 
    }
 
@@ -212,5 +216,7 @@ void loop() {
 
  }
  yield();
+
+ */
 
 }
